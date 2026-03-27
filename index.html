@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ko" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swing Masterplan Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: { extend: {} }
+        }
+    </script>
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans antialiased min-h-screen p-4 md:p-8">
+    <div class="max-w-7xl mx-auto">
+        <header class="mb-8 text-center md:text-left">
+            <h1 class="text-3xl font-bold text-white mb-2">Fisher-Lynch Swing Masterplan</h1>
+            <p class="text-gray-400 text-sm">업데이트 시간: <span id="last-updated" class="font-mono text-blue-400">데이터를 불러오는 중...</span></p>
+        </header>
+
+        <div id="loading-spinner" class="flex justify-center items-center py-20">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        </div>
+
+        <main id="dashboard-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
+            </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
