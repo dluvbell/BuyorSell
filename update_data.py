@@ -5,50 +5,47 @@ from ta.trend import MACD, PSARIndicator
 from ta.momentum import RSIIndicator
 from datetime import datetime
 
-def check_conditions(df, config):
-    last_3_weeks = df.tail(3)
-    current_week = df.iloc[-1]
-    prev_week = df.iloc[-2]
-    prev2_week = df.iloc[-3]
+def analyze_timeframe(df, rsi_buy_threshold):
+    # 기술적 지표 계산
+    df['RSI'] = RSIIndicator(close=df['Close'], window=14).rsi()
+    macd = MACD(close=df['Close'], window_slow=26, window_fast=12, window_sign=9)
+    df['MACD_Hist'] = macd.macd_diff()
+    psar = PSARIndicator(high=df['High'], low=df['Low'], close=df['Close'], step=0.02, max_step=0.20)
+    df['PSAR'] = psar.psar()
+    df = df.dropna()
 
-    rsi_buy_list = config.get('rsi_buy', [40, 50])
-    rsi_buy_threshold = rsi_buy_list[0] if len(rsi_buy_list) > 0 else 40
+    if len(df) < 3:
+        return None
 
-    # 1. 상태 표시용 (가장 엄격하게 '이번 주'만 확인)
-    is_currently_buy_zone = current_week['RSI'] <= rsi_buy_threshold
+    last_3 = df.tail(3)
+    curr = df.iloc[-1]
+    prev = df.iloc[-2]
+    prev2 = df.iloc[-3]
 
-    # 2. 실행 검증용 (최근 3주 내 RSI 바닥 터치 이력 확인)
-    was_in_buy_zone_recently = any((rsi <= rsi_buy_threshold) for rsi in last_3_weeks['RSI'].values)
+    # 조건 판별
+    is_currently_buy = curr['RSI'] <= rsi_buy_threshold
+    was_buy_recently = any((rsi <= rsi_buy_threshold) for rsi in last_3['RSI'].values)
 
-    # SAR 방향 전환 및 현재 위치 판별
-    sar_flip_up = (prev_week['PSAR'] > prev_week['High']) and (current_week['PSAR'] < current_week['Low'])
-    sar_is_below = current_week['PSAR'] < current_week['Low']
-    
-    # MACD 히스토그램 2주 연속 상승 판별
-    macd_hist_rising = (current_week['MACD_Hist'] > prev_week['MACD_Hist']) and (prev_week['MACD_Hist'] > prev2_week['MACD_Hist'])
+    sar_flip_up = (prev['PSAR'] > prev['High']) and (curr['PSAR'] < curr['Low'])
+    macd_hist_rising = (curr['MACD_Hist'] > prev['MACD_Hist']) and (prev['MACD_Hist'] > prev2['MACD_Hist'])
 
-    # 최종 상태 판별 (Default: 매월 기계적 DCA 유지)
-    status = "기계적 DCA 진행 (일상)"
+    # 상태 결정 (사용자 철학 반영)
+    status = "기계적 DCA (일상)"
     color = "gray"
     
-    # MDD 몰빵 실행 신호 (과거 3주 내 RSI 바닥 + 현재 SAR 상승 반전 + 현재 MACD 상승)
-    if was_in_buy_zone_recently and sar_flip_up and macd_hist_rising:
-        status = "🚨 V자 턴어라운드 (장전 실탄 투하! 땅!)"
+    if was_buy_recently and sar_flip_up and macd_hist_rising:
+        status = "🚨 V자 턴어라운드 (땅!)"
         color = "green"
-    # 현금 비축 경고 (현재 RSI가 바닥권에 진입하여 폭락 중일 때)
-    elif is_currently_buy_zone:
-        status = "⚠️ 바닥권 진입 (추매 실탄 장전! 준비~)"
+    elif is_currently_buy:
+        status = "⚠️ 바닥권 진입 (준비~)"
         color = "yellow"
 
     return {
-        "price": round(current_week['Close'], 2),
-        "rsi": round(current_week['RSI'], 2),
-        "macd_hist_rising": bool(macd_hist_rising),
-        "sar_below_candle": bool(sar_is_below),
-        "sar_flip_up": bool(sar_flip_up),
+        "price": round(curr['Close'], 2),
+        "rsi": round(curr['RSI'], 2),
         "status": status,
         "color": color,
-        "date": current_week.name.strftime('%Y-%m-%d')
+        "date": curr.name.strftime('%Y-%m-%d')
     }
 
 def main():
@@ -58,35 +55,33 @@ def main():
     results = {"last_updated": datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC'), "assets": []}
     
     for asset in config_data['tickers']:
+        symbol = asset['symbol']
+        rsi_buy_list = asset.get('rsi_buy', [40, 50])
+        rsi_buy_threshold = rsi_buy_list[0] if len(rsi_buy_list) > 0 else 40
+
         try:
-            df = yf.download(asset['symbol'], interval="1wk", period="2y", progress=False, auto_adjust=True)
-            if isinstance(df.columns, pd.MultiIndex):
-                df.columns = df.columns.droplevel(1)
-            
-            df['RSI'] = RSIIndicator(close=df['Close'], window=14).rsi()
-            macd = MACD(close=df['Close'], window_slow=26, window_fast=12, window_sign=9)
-            df['MACD_Hist'] = macd.macd_diff()
-            
-            psar = PSARIndicator(high=df['High'], low=df['Low'], close=df['Close'], step=0.02, max_step=0.20)
-            df['PSAR'] = psar.psar()
-            
-            df = df.dropna()
-            
-            if len(df) < 3:
-                continue
-                
-            metrics = check_conditions(df, asset)
-            
-            results['assets'].append({
-                "symbol": asset['symbol'],
-                "group": asset['group'],
-                "weight": asset['weight'],
-                **metrics
-            })
-            print(f"[{asset['symbol']}] 데이터 처리 완료")
+            # 일봉(Daily) 데이터 처리
+            df_daily = yf.download(symbol, interval="1d", period="1y", progress=False, auto_adjust=True)
+            if isinstance(df_daily.columns, pd.MultiIndex): df_daily.columns = df_daily.columns.droplevel(1)
+            daily_res = analyze_timeframe(df_daily, rsi_buy_threshold)
+
+            # 주봉(Weekly) 데이터 처리
+            df_weekly = yf.download(symbol, interval="1wk", period="2y", progress=False, auto_adjust=True)
+            if isinstance(df_weekly.columns, pd.MultiIndex): df_weekly.columns = df_weekly.columns.droplevel(1)
+            weekly_res = analyze_timeframe(df_weekly, rsi_buy_threshold)
+
+            if daily_res and weekly_res:
+                results['assets'].append({
+                    "symbol": symbol,
+                    "group": asset['group'],
+                    "current_price": daily_res['price'], # 현재가는 최신 일봉 기준
+                    "daily": daily_res,
+                    "weekly": weekly_res
+                })
+                print(f"[{symbol}] 듀얼 타임프레임 데이터 처리 완료")
             
         except Exception as e:
-            print(f"[{asset['symbol']}] 에러 발생: {e}")
+            print(f"[{symbol}] 에러 발생: {e}")
             
     with open('dashboard_data.json', 'w', encoding='utf-8') as f:
         json.dump(results, f, ensure_ascii=False, indent=2)
