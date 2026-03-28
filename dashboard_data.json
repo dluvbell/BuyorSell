@@ -1,83 +1,119 @@
 {
-  "last_updated": "2026-03-28 00:12:21 UTC",
+  "last_updated": "2026-03-28 14:26:01 UTC",
   "assets": [
     {
       "symbol": "MSFT",
       "group": "대형 우량주",
-      "weight": 25,
-      "price": 356.77,
-      "rsi": 25.51,
-      "macd_hist_rising": false,
-      "sar_below_candle": false,
-      "sar_flip_up": false,
-      "status": "⚠️ MDD 경고 (현금 비축)",
-      "color": "yellow",
-      "date": "2026-03-23"
+      "current_price": 356.77,
+      "daily": {
+        "price": 356.77,
+        "rsi": 22.29,
+        "status": "⚠️ 바닥권 진입 (준비~)",
+        "color": "yellow",
+        "date": "2026-03-27"
+      },
+      "weekly": {
+        "price": 356.77,
+        "rsi": 25.51,
+        "status": "⚠️ 바닥권 진입 (준비~)",
+        "color": "yellow",
+        "date": "2026-03-23"
+      }
     },
     {
       "symbol": "AMZN",
       "group": "대형 우량주",
-      "weight": 20,
-      "price": 199.34,
-      "rsi": 39.18,
-      "macd_hist_rising": false,
-      "sar_below_candle": false,
-      "sar_flip_up": false,
-      "status": "⚠️ MDD 경고 (현금 비축)",
-      "color": "yellow",
-      "date": "2026-03-23"
+      "current_price": 199.34,
+      "daily": {
+        "price": 199.34,
+        "rsi": 37.76,
+        "status": "⚠️ 바닥권 진입 (준비~)",
+        "color": "yellow",
+        "date": "2026-03-27"
+      },
+      "weekly": {
+        "price": 199.34,
+        "rsi": 39.18,
+        "status": "⚠️ 바닥권 진입 (준비~)",
+        "color": "yellow",
+        "date": "2026-03-23"
+      }
     },
     {
       "symbol": "TSLA",
       "group": "고성장주",
-      "weight": 15,
-      "price": 361.83,
-      "rsi": 38.49,
-      "macd_hist_rising": false,
-      "sar_below_candle": false,
-      "sar_flip_up": false,
-      "status": "⚠️ MDD 경고 (현금 비축)",
-      "color": "yellow",
-      "date": "2026-03-23"
+      "current_price": 361.83,
+      "daily": {
+        "price": 361.83,
+        "rsi": 33.86,
+        "status": "⚠️ 바닥권 진입 (준비~)",
+        "color": "yellow",
+        "date": "2026-03-27"
+      },
+      "weekly": {
+        "price": 361.83,
+        "rsi": 38.49,
+        "status": "⚠️ 바닥권 진입 (준비~)",
+        "color": "yellow",
+        "date": "2026-03-23"
+      }
     },
     {
       "symbol": "PLTR",
       "group": "고성장주",
-      "weight": 10,
-      "price": 143.06,
-      "rsi": 44.39,
-      "macd_hist_rising": true,
-      "sar_below_candle": false,
-      "sar_flip_up": false,
-      "status": "DCA 유지 (관망)",
-      "color": "gray",
-      "date": "2026-03-23"
+      "current_price": 143.06,
+      "daily": {
+        "price": 143.06,
+        "rsi": 42.85,
+        "status": "기계적 DCA (일상)",
+        "color": "gray",
+        "date": "2026-03-27"
+      },
+      "weekly": {
+        "price": 143.06,
+        "rsi": 44.39,
+        "status": "기계적 DCA (일상)",
+        "color": "gray",
+        "date": "2026-03-23"
+      }
     },
     {
       "symbol": "IBIT",
       "group": "코인 ETF",
-      "weight": 20,
-      "price": 37.4,
-      "rsi": 31.7,
-      "macd_hist_rising": true,
-      "sar_below_candle": false,
-      "sar_flip_up": false,
-      "status": "⚠️ MDD 경고 (현금 비축)",
-      "color": "yellow",
-      "date": "2026-03-23"
+      "current_price": 37.4,
+      "daily": {
+        "price": 37.4,
+        "rsi": 39.4,
+        "status": "기계적 DCA (일상)",
+        "color": "gray",
+        "date": "2026-03-27"
+      },
+      "weekly": {
+        "price": 37.4,
+        "rsi": 31.7,
+        "status": "⚠️ 바닥권 진입 (준비~)",
+        "color": "yellow",
+        "date": "2026-03-23"
+      }
     },
     {
       "symbol": "ETHA",
       "group": "코인 ETF",
-      "weight": 10,
-      "price": 15.01,
-      "rsi": 34.61,
-      "macd_hist_rising": true,
-      "sar_below_candle": false,
-      "sar_flip_up": false,
-      "status": "⚠️ MDD 경고 (현금 비축)",
-      "color": "yellow",
-      "date": "2026-03-23"
+      "current_price": 15.01,
+      "daily": {
+        "price": 15.01,
+        "rsi": 41.75,
+        "status": "기계적 DCA (일상)",
+        "color": "gray",
+        "date": "2026-03-27"
+      },
+      "weekly": {
+        "price": 15.01,
+        "rsi": 34.61,
+        "status": "⚠️ 바닥권 진입 (준비~)",
+        "color": "yellow",
+        "date": "2026-03-23"
+      }
     }
   ]
 }
