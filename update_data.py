@@ -27,17 +27,17 @@ def check_conditions(df, config):
     # MACD 히스토그램 2주 연속 상승 판별
     macd_hist_rising = (current_week['MACD_Hist'] > prev_week['MACD_Hist']) and (prev_week['MACD_Hist'] > prev2_week['MACD_Hist'])
 
-    # 최종 상태 판별 (Default: 매월 정립식 매수 유지)
-    status = "DCA 유지 (관망)"
+    # 최종 상태 판별 (Default: 매월 기계적 DCA 유지)
+    status = "기계적 DCA 진행 (일상)"
     color = "gray"
     
     # MDD 몰빵 실행 신호 (과거 3주 내 RSI 바닥 + 현재 SAR 상승 반전 + 현재 MACD 상승)
     if was_in_buy_zone_recently and sar_flip_up and macd_hist_rising:
-        status = "🚨 MDD 몰빵 신호! (Buy & Hold)"
+        status = "🚨 V자 턴어라운드 (장전 실탄 투하! 땅!)"
         color = "green"
     # 현금 비축 경고 (현재 RSI가 바닥권에 진입하여 폭락 중일 때)
     elif is_currently_buy_zone:
-        status = "⚠️ MDD 경고 (현금 비축)"
+        status = "⚠️ 바닥권 진입 (추매 실탄 장전! 준비~)"
         color = "yellow"
 
     return {
