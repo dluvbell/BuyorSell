@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-03-28 18:20:52 UTC",
+  "last_updated": "2026-03-28 20:29:31 UTC",
   "assets": [
     {
       "symbol": "MSFT",
@@ -8,6 +8,7 @@
       "mdd": -33.9,
       "target_tier": -30.0,
       "allocation_fund": "14개월 치",
+      "per_data": null,
       "daily": {
         "rsi": 22.3,
         "vol_spike": 1.15,
@@ -31,7 +32,8 @@
       "current_price": 199.34,
       "mdd": -21.5,
       "target_tier": -20.0,
-      "allocation_fund": "6개월 치",
+      "allocation_fund": "3개월 치",
+      "per_data": null,
       "daily": {
         "rsi": 37.8,
         "vol_spike": 1.24,
@@ -56,6 +58,7 @@
       "mdd": -26.1,
       "target_tier": -25.0,
       "allocation_fund": "6개월 치",
+      "per_data": null,
       "daily": {
         "rsi": 33.9,
         "vol_spike": 1.02,
@@ -80,6 +83,7 @@
       "mdd": -30.9,
       "target_tier": -30.0,
       "allocation_fund": "9개월 치",
+      "per_data": null,
       "daily": {
         "rsi": 42.8,
         "vol_spike": 0.74,
@@ -103,7 +107,8 @@
       "current_price": 37.4,
       "mdd": -47.5,
       "target_tier": -45.0,
-      "allocation_fund": "18개월 치",
+      "allocation_fund": "15개월 치",
+      "per_data": null,
       "daily": {
         "rsi": 39.4,
         "vol_spike": 1.07,
@@ -127,7 +132,8 @@
       "current_price": 15.01,
       "mdd": -59.0,
       "target_tier": -55.0,
-      "allocation_fund": "24개월 치",
+      "allocation_fund": "21개월 치",
+      "per_data": null,
       "daily": {
         "rsi": 41.8,
         "vol_spike": 1.26,
