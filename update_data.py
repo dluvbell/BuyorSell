@@ -11,47 +11,34 @@ def check_conditions(df, config):
     prev_week = df.iloc[-2]
     prev2_week = df.iloc[-3]
 
-    # 방어적 프로그래밍: 리스트 길이 예외 처리 추가 (IndexError 완벽 차단)
     rsi_buy_list = config.get('rsi_buy', [40, 50])
-    rsi_sell_list = config.get('rsi_sell', [65, 70])
     rsi_buy_threshold = rsi_buy_list[0] if len(rsi_buy_list) > 0 else 40
-    rsi_sell_threshold = rsi_sell_list[1] if len(rsi_sell_list) > 1 else 70
 
-    # 1. 상태 표시용 (가장 엄격하게 '이번 주'만 확인하여 노이즈 차단)
+    # 1. 상태 표시용 (가장 엄격하게 '이번 주'만 확인)
     is_currently_buy_zone = current_week['RSI'] <= rsi_buy_threshold
-    is_currently_sell_zone = current_week['RSI'] >= rsi_sell_threshold
 
-    # 2. 실행 검증용 (시차 극복을 위해 최근 3주 터치 이력 확인)
+    # 2. 실행 검증용 (최근 3주 내 RSI 바닥 터치 이력 확인)
     was_in_buy_zone_recently = any((rsi <= rsi_buy_threshold) for rsi in last_3_weeks['RSI'].values)
-    was_in_sell_zone_recently = any((rsi >= rsi_sell_threshold) for rsi in last_3_weeks['RSI'].values)
 
-    # SAR 방향 전환 및 현재 위치 판별 (글로벌 표준인 High/Low 기준)
+    # SAR 방향 전환 및 현재 위치 판별
     sar_flip_up = (prev_week['PSAR'] > prev_week['High']) and (current_week['PSAR'] < current_week['Low'])
-    sar_flip_down = (prev_week['PSAR'] < prev_week['Low']) and (current_week['PSAR'] > current_week['High'])
     sar_is_below = current_week['PSAR'] < current_week['Low']
     
-    # MACD 히스토그램 2주 연속 상승/하락 판별
+    # MACD 히스토그램 2주 연속 상승 판별
     macd_hist_rising = (current_week['MACD_Hist'] > prev_week['MACD_Hist']) and (prev_week['MACD_Hist'] > prev2_week['MACD_Hist'])
-    macd_hist_falling = (current_week['MACD_Hist'] < prev_week['MACD_Hist']) and (prev_week['MACD_Hist'] < prev2_week['MACD_Hist'])
 
-    # 최종 상태 판별
-    status = "관망 (Hold)"
+    # 최종 상태 판별 (Default: 매월 정립식 매수 유지)
+    status = "DCA 유지 (관망)"
     color = "gray"
     
-    # 매매 실행 신호 (과거 3주 내 RSI 조건 + 현재 SAR 플립 + 현재 MACD 방향 일치 시)
+    # MDD 몰빵 실행 신호 (과거 3주 내 RSI 바닥 + 현재 SAR 상승 반전 + 현재 MACD 상승)
     if was_in_buy_zone_recently and sar_flip_up and macd_hist_rising:
-        status = "매수 진입 신호! (Buy)"
+        status = "🚨 MDD 몰빵 신호! (Buy & Hold)"
         color = "green"
-    elif was_in_sell_zone_recently and sar_flip_down and macd_hist_falling:
-        status = "전량 매도 신호! (Sell)"
-        color = "red"
-    # 단순 준비 상태 표시 (과거 무시, 오직 '현재' RSI가 타점에 있을 때만)
+    # 현금 비축 경고 (현재 RSI가 바닥권에 진입하여 폭락 중일 때)
     elif is_currently_buy_zone:
-        status = "매수 준비 (극한의 공포 진입)"
+        status = "⚠️ MDD 경고 (현금 비축)"
         color = "yellow"
-    elif is_currently_sell_zone:
-        status = "매도 준비 (극한의 과열 진입)"
-        color = "orange"
 
     return {
         "price": round(current_week['Close'], 2),
@@ -59,7 +46,6 @@ def check_conditions(df, config):
         "macd_hist_rising": bool(macd_hist_rising),
         "sar_below_candle": bool(sar_is_below),
         "sar_flip_up": bool(sar_flip_up),
-        "sar_flip_down": bool(sar_flip_down),
         "status": status,
         "color": color,
         "date": current_week.name.strftime('%Y-%m-%d')
@@ -73,7 +59,6 @@ def main():
     
     for asset in config_data['tickers']:
         try:
-            # yfinance MultiIndex 오류 해결 및 auto_adjust 유지
             df = yf.download(asset['symbol'], interval="1wk", period="2y", progress=False, auto_adjust=True)
             if isinstance(df.columns, pd.MultiIndex):
                 df.columns = df.columns.droplevel(1)
@@ -96,7 +81,6 @@ def main():
                 "symbol": asset['symbol'],
                 "group": asset['group'],
                 "weight": asset['weight'],
-                "stop_loss_pct": asset['stop_loss_pct'],
                 **metrics
             })
             print(f"[{asset['symbol']}] 데이터 처리 완료")
