@@ -4,46 +4,70 @@ import pandas as pd
 from ta.momentum import RSIIndicator
 from datetime import datetime
 
-# 사용자 MDD 테이블
+# 사용자 MDD 테이블 (AMZN 독립 테이블 완벽 분리 적용)
 MDD_TABLES = {
     'tech_giants': {
         -15.0: '3개월 치', -20.0: '6개월 치', -25.0: '10개월 치', -30.0: '14개월 치', 
         -35.0: '18개월 치', -40.0: '22개월 치', -45.0: '26개월 치', -50.0: '30개월 치', 
         -55.0: '33개월 치', -60.0: '36개월 (Max)'
     },
-    'growth_crypto': {
+    'amzn': {
+        -20.0: '3개월 치', -25.0: '6개월 치', -30.0: '10개월 치', -35.0: '14개월 치', 
+        -40.0: '18개월 치', -45.0: '22개월 치', -50.0: '26개월 치', -55.0: '30개월 치', 
+        -60.0: '33개월 치', -65.0: '36개월 (Max)'
+    },
+    'growth': {
         -20.0: '3개월 치', -25.0: '6개월 치', -30.0: '9개월 치', -35.0: '12개월 치', 
         -40.0: '15개월 치', -45.0: '18개월 치', -50.0: '21개월 치', -55.0: '24개월 치', 
         -60.0: '27개월 치', -65.0: '30개월 치', -70.0: '33개월 치', -75.0: '36개월 (Max)'
+    },
+    'ibit_etha': {
+        -25.0: '3개월 치', -30.0: '6개월 치', -35.0: '9개월 치', -40.0: '12개월 치', 
+        -45.0: '15개월 치', -50.0: '18개월 치', -55.0: '21개월 치', -60.0: '24개월 치', 
+        -65.0: '27개월 치', -70.0: '30개월 치', -75.0: '33개월 치', -80.0: '36개월 (Max)'
+    },
+    'bmnr': {
+        -30.0: '3개월 치', -35.0: '6개월 치', -40.0: '9개월 치', -45.0: '12개월 치', 
+        -50.0: '15개월 치', -55.0: '18개월 치', -60.0: '21개월 치', -65.0: '24개월 치', 
+        -70.0: '27개월 치', -75.0: '30개월 치', -80.0: '33개월 치', -85.0: '36개월 (Max)'
     }
 }
 
-# AMZN 매핑 오류 수정 완료
+# 5단계 테이블에 따른 정확한 매핑
 ASSET_TABLE_MAP = {
-    'MSFT': 'tech_giants', 'AAPL': 'tech_giants', 'AMZN': 'tech_giants',
-    'PLTR': 'growth_crypto', 'TSLA': 'growth_crypto', 'IBIT': 'growth_crypto', 'BMNR': 'growth_crypto'
+    'MSFT': 'tech_giants', 'AAPL': 'tech_giants', 
+    'AMZN': 'amzn',
+    'PLTR': 'growth', 'TSLA': 'growth',
+    'IBIT': 'ibit_etha', 'ETHA': 'ibit_etha',
+    'BMNR': 'bmnr'
 }
 
-def get_allocation_info(symbol, current_dd):
-    table_name = ASSET_TABLE_MAP.get(symbol, 'growth_crypto')
+def get_per_adjustment(current_pe, avg_pe):
+    discount_rate = ((current_pe - avg_pe) / avg_pe) * 100
+    if discount_rate > 25: bonus = -15
+    elif discount_rate > 15: bonus = -10
+    elif discount_rate > 5: bonus = -5
+    elif discount_rate >= -5: bonus = 0
+    elif discount_rate >= -15: bonus = 5
+    elif discount_rate >= -25: bonus = 10
+    else: bonus = 15
+    return discount_rate, bonus
+
+def get_allocation_info(symbol, effective_dd):
+    # 매핑되지 않은 자산은 기본적으로 growth(-20% 시작) 테이블을 따름
+    table_name = ASSET_TABLE_MAP.get(symbol, 'growth')
     table = MDD_TABLES[table_name]
-    
     allocation = "일상 DCA"
     target_tier = 0.0
-    
-    # 오름차순 정렬: -60, -55, ... -15 (클로드 제안 수용)
     sorted_tiers = sorted(table.keys()) 
-    
     for tier in sorted_tiers:
-        if current_dd <= tier:
+        if effective_dd <= tier:
             allocation = table[tier]
             target_tier = tier
-            break # 가장 깊은 바닥부터 체크하여 조건에 맞으면 즉시 종료
-            
+            break
     return target_tier, allocation
 
 def calc_streak(series):
-    # Numpy 배열 오류 수정 (reversed -> [::-1] 슬라이싱 사용)
     if series.iloc[-1] <= 0: return 0
     count = 0
     for val in series.values[::-1]:
@@ -92,13 +116,31 @@ def main():
             df_daily = yf.download(symbol, period="2y", interval="1d", progress=False, auto_adjust=True)
             if isinstance(df_daily.columns, pd.MultiIndex): df_daily.columns = df_daily.columns.droplevel(1)
             
-            # 52주 고점 대비 하락률 (용어를 drawdown으로 정정)
             df_52w = df_daily.tail(252)
             high_52w = df_52w['Close'].max()
             curr_price = df_daily['Close'].iloc[-1]
-            drawdown = ((curr_price - high_52w) / high_52w) * 100
+            raw_drawdown = ((curr_price - high_52w) / high_52w) * 100
             
-            target_tier, allocation_fund = get_allocation_info(symbol, drawdown)
+            per_data = None
+            effective_dd = raw_drawdown
+            
+            if asset.get('group') == 'A' and 'avg_pe_3y' in asset:
+                ticker_obj = yf.Ticker(symbol)
+                current_pe = ticker_obj.info.get('trailingPE')
+                if not current_pe: current_pe = ticker_obj.info.get('forwardPE')
+                
+                if current_pe:
+                    avg_pe = asset['avg_pe_3y']
+                    discount_rate, bonus = get_per_adjustment(current_pe, avg_pe)
+                    effective_dd = raw_drawdown - bonus
+                    
+                    per_data = {
+                        "current_pe": round(current_pe, 2), "avg_pe": round(avg_pe, 2),
+                        "discount_rate": round(discount_rate, 1), "bonus": bonus,
+                        "raw_mdd": round(raw_drawdown, 1)
+                    }
+
+            target_tier, allocation_fund = get_allocation_info(symbol, effective_dd)
             
             daily_res = calc_daily_metrics(df_daily)
             df_weekly = yf.download(symbol, period="2y", interval="1wk", progress=False, auto_adjust=True)
@@ -108,10 +150,10 @@ def main():
             if daily_res and weekly_res:
                 results['assets'].append({
                     "symbol": symbol, "group": asset['group'], "current_price": round(curr_price, 2),
-                    "mdd": round(drawdown, 1), "target_tier": target_tier, "allocation_fund": allocation_fund,
-                    "daily": daily_res, "weekly": weekly_res
+                    "mdd": round(effective_dd, 1), "target_tier": target_tier, "allocation_fund": allocation_fund,
+                    "per_data": per_data, "daily": daily_res, "weekly": weekly_res
                 })
-            print(f"[{symbol}] 터미널 계기판 데이터 처리 완료")
+            print(f"[{symbol}] 데이터 처리 완료")
         except Exception as e:
             print(f"[{symbol}] 에러 발생: {e}")
             
