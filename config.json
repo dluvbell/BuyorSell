@@ -1,10 +1,10 @@
 {
   "tickers": [
-    { "symbol": "MSFT", "group": "대형 우량주", "weight": 25, "rsi_buy": [45, 50] },
-    { "symbol": "AMZN", "group": "대형 우량주", "weight": 20, "rsi_buy": [40, 45] },
-    { "symbol": "TSLA", "group": "고성장주", "weight": 15, "rsi_buy": [40, 45] },
-    { "symbol": "PLTR", "group": "고성장주", "weight": 10, "rsi_buy": [40, 45] },
-    { "symbol": "IBIT", "group": "코인 ETF", "weight": 20, "rsi_buy": [35, 40] },
-    { "symbol": "ETHA", "group": "코인 ETF", "weight": 10, "rsi_buy": [40, 45] }
+    { "symbol": "MSFT", "group": "대형 우량주", "weight": 25, "rsi_buy": [40, 50], "rsi_sell": [65, 70], "stop_loss_pct": 20 },
+    { "symbol": "AMZN", "group": "대형 우량주", "weight": 20, "rsi_buy": [40, 50], "rsi_sell": [65, 70], "stop_loss_pct": 20 },
+    { "symbol": "TSLA", "group": "고성장주", "weight": 15, "rsi_buy": [35, 45], "rsi_sell": [75, 80], "stop_loss_pct": 30 },
+    { "symbol": "PLTR", "group": "고성장주", "weight": 10, "rsi_buy": [35, 45], "rsi_sell": [75, 80], "stop_loss_pct": 30 },
+    { "symbol": "IBIT", "group": "코인 ETF", "weight": 20, "rsi_buy": [35, 45], "rsi_sell": [75, 80], "stop_loss_pct": 30 },
+    { "symbol": "ETHA", "group": "코인 ETF", "weight": 10, "rsi_buy": [35, 45], "rsi_sell": [75, 80], "stop_loss_pct": 30 }
   ]
 }
