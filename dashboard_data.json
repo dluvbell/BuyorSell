@@ -1,22 +1,27 @@
 {
-  "last_updated": "2026-03-28 14:26:01 UTC",
+  "last_updated": "2026-03-28 18:20:52 UTC",
   "assets": [
     {
       "symbol": "MSFT",
       "group": "대형 우량주",
       "current_price": 356.77,
+      "mdd": -33.9,
+      "target_tier": -30.0,
+      "allocation_fund": "14개월 치",
       "daily": {
-        "price": 356.77,
-        "rsi": 22.29,
-        "status": "⚠️ 바닥권 진입 (준비~)",
-        "color": "yellow",
+        "rsi": 22.3,
+        "vol_spike": 1.15,
+        "roc1": -9.16,
+        "roc2": -5.29,
+        "streak": 0,
         "date": "2026-03-27"
       },
       "weekly": {
-        "price": 356.77,
-        "rsi": 25.51,
-        "status": "⚠️ 바닥권 진입 (준비~)",
-        "color": "yellow",
+        "rsi": 25.5,
+        "vol_spike": 1.13,
+        "roc1": -26.68,
+        "roc2": -6.69,
+        "streak": 0,
         "date": "2026-03-23"
       }
     },
@@ -24,18 +29,23 @@
       "symbol": "AMZN",
       "group": "대형 우량주",
       "current_price": 199.34,
+      "mdd": -21.5,
+      "target_tier": -20.0,
+      "allocation_fund": "6개월 치",
       "daily": {
-        "price": 199.34,
-        "rsi": 37.76,
-        "status": "⚠️ 바닥권 진입 (준비~)",
-        "color": "yellow",
+        "rsi": 37.8,
+        "vol_spike": 1.24,
+        "roc1": -5.08,
+        "roc2": -2.82,
+        "streak": 0,
         "date": "2026-03-27"
       },
       "weekly": {
-        "price": 199.34,
-        "rsi": 39.18,
-        "status": "⚠️ 바닥권 진입 (준비~)",
-        "color": "yellow",
+        "rsi": 39.2,
+        "vol_spike": 1.06,
+        "roc1": -14.27,
+        "roc2": -4.31,
+        "streak": 0,
         "date": "2026-03-23"
       }
     },
@@ -43,18 +53,23 @@
       "symbol": "TSLA",
       "group": "고성장주",
       "current_price": 361.83,
+      "mdd": -26.1,
+      "target_tier": -25.0,
+      "allocation_fund": "6개월 치",
       "daily": {
-        "price": 361.83,
-        "rsi": 33.86,
-        "status": "⚠️ 바닥권 진입 (준비~)",
-        "color": "yellow",
+        "rsi": 33.9,
+        "vol_spike": 1.02,
+        "roc1": -10.11,
+        "roc2": 0.54,
+        "streak": 1,
         "date": "2026-03-27"
       },
       "weekly": {
-        "price": 361.83,
-        "rsi": 38.49,
-        "status": "⚠️ 바닥권 진입 (준비~)",
-        "color": "yellow",
+        "rsi": 38.5,
+        "vol_spike": 1.24,
+        "roc1": -23.86,
+        "roc2": -17.43,
+        "streak": 0,
         "date": "2026-03-23"
       }
     },
@@ -62,18 +77,23 @@
       "symbol": "PLTR",
       "group": "고성장주",
       "current_price": 143.06,
+      "mdd": -30.9,
+      "target_tier": -30.0,
+      "allocation_fund": "9개월 치",
       "daily": {
-        "price": 143.06,
-        "rsi": 42.85,
-        "status": "기계적 DCA (일상)",
-        "color": "gray",
+        "rsi": 42.8,
+        "vol_spike": 0.74,
+        "roc1": 4.28,
+        "roc2": -7.14,
+        "streak": 0,
         "date": "2026-03-27"
       },
       "weekly": {
-        "price": 143.06,
-        "rsi": 44.39,
-        "status": "기계적 DCA (일상)",
-        "color": "gray",
+        "rsi": 44.4,
+        "vol_spike": 1.04,
+        "roc1": -24.19,
+        "roc2": -5.63,
+        "streak": 0,
         "date": "2026-03-23"
       }
     },
@@ -81,18 +101,23 @@
       "symbol": "IBIT",
       "group": "코인 ETF",
       "current_price": 37.4,
+      "mdd": -47.5,
+      "target_tier": -45.0,
+      "allocation_fund": "18개월 치",
       "daily": {
-        "price": 37.4,
         "rsi": 39.4,
-        "status": "기계적 DCA (일상)",
-        "color": "gray",
+        "vol_spike": 1.07,
+        "roc1": 0.56,
+        "roc2": -2.95,
+        "streak": 0,
         "date": "2026-03-27"
       },
       "weekly": {
-        "price": 37.4,
         "rsi": 31.7,
-        "status": "⚠️ 바닥권 진입 (준비~)",
-        "color": "yellow",
+        "vol_spike": 0.92,
+        "roc1": -24.61,
+        "roc2": 3.24,
+        "streak": 1,
         "date": "2026-03-23"
       }
     },
@@ -100,18 +125,23 @@
       "symbol": "ETHA",
       "group": "코인 ETF",
       "current_price": 15.01,
+      "mdd": -59.0,
+      "target_tier": -55.0,
+      "allocation_fund": "24개월 치",
       "daily": {
-        "price": 15.01,
-        "rsi": 41.75,
-        "status": "기계적 DCA (일상)",
-        "color": "gray",
+        "rsi": 41.8,
+        "vol_spike": 1.26,
+        "roc1": 3.37,
+        "roc2": -4.75,
+        "streak": 0,
         "date": "2026-03-27"
       },
       "weekly": {
-        "price": 15.01,
-        "rsi": 34.61,
-        "status": "⚠️ 바닥권 진입 (준비~)",
-        "color": "yellow",
+        "rsi": 34.6,
+        "vol_spike": 1.25,
+        "roc1": -32.2,
+        "roc2": 4.53,
+        "streak": 1,
         "date": "2026-03-23"
       }
     }
