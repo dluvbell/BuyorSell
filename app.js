@@ -24,7 +24,6 @@ function renderPanel(title, data, unitName) {
     return `
         <div class="bg-gray-900/80 rounded-lg p-4 border border-gray-700/50 flex flex-col">
             <p class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-3 text-center border-b border-gray-700 pb-2">${title}</p>
-            
             <div class="flex justify-between py-1.5 border-b border-gray-800">
                 <span class="text-gray-500 text-[11px] uppercase tracking-wide">RSI (공포)</span>
                 <span class="font-mono text-sm ${getMetricColor(data.rsi, 'rsi')}">${data.rsi.toFixed(1)}</span>
@@ -48,6 +47,39 @@ function renderPanel(title, data, unitName) {
     `;
 }
 
+// effectiveMdd 파라미터 추가 및 최종 MDD 수치 출력 구문 적용 완료
+function renderPerAdjustment(perData, effectiveMdd) {
+    if (!perData) return ''; 
+    
+    let evalText = "적정 가치";
+    let bonusText = `보정 없음 (0%)`;
+    let colorClass = "text-gray-400";
+    
+    if (perData.bonus === -15) { evalText = "거품 심화"; bonusText = "패널티 -15%"; colorClass = "text-rose-600"; }
+    else if (perData.bonus === -10) { evalText = "거품"; bonusText = "패널티 -10%"; colorClass = "text-rose-500"; }
+    else if (perData.bonus === -5) { evalText = "고평가"; bonusText = "패널티 -5%"; colorClass = "text-rose-400"; }
+    else if (perData.bonus === 5) { evalText = "저평가"; bonusText = "보너스 +5%"; colorClass = "text-emerald-400"; }
+    else if (perData.bonus === 10) { evalText = "저평가 심화"; bonusText = "보너스 +10%"; colorClass = "text-emerald-500"; }
+    else if (perData.bonus === 15) { evalText = "역사적 저평가"; bonusText = "보너스 +15%"; colorClass = "text-emerald-600"; }
+
+    return `
+        <div class="bg-gray-800/50 rounded-lg p-3 border border-gray-700 mb-4 mt-2">
+            <div class="flex justify-between items-center mb-2 border-b border-gray-700 pb-1">
+                <span class="text-gray-400 text-[10px] uppercase font-bold">PER 가치 평가 레이더</span>
+                <span class="${colorClass} text-xs font-bold">${evalText} (${perData.discount_rate > 0 ? '+' : ''}${perData.discount_rate.toFixed(1)}%)</span>
+            </div>
+            <div class="flex justify-between text-xs font-mono text-gray-400">
+                <span>현재 PER: ${perData.current_pe}</span>
+                <span>3년 평균: ${perData.avg_pe}</span>
+            </div>
+            <div class="flex justify-between text-xs font-mono mt-1">
+                <span class="text-gray-500">실제 MDD: ${perData.raw_mdd}%</span>
+                <span class="${colorClass} font-bold">${bonusText} 적용 ➡️ 최종 MDD: ${effectiveMdd.toFixed(1)}%</span>
+            </div>
+        </div>
+    `;
+}
+
 async function renderDashboard() {
     try {
         const response = await fetch(`dashboard_data.json?t=${new Date().getTime()}`);
@@ -66,21 +98,22 @@ async function renderDashboard() {
             const card = document.createElement('div');
             card.className = "bg-gray-800 rounded-xl p-5 shadow-lg border border-gray-700 flex flex-col hover:border-blue-500 transition-colors duration-300";
             
-            // 사용자 철학 반영: 타점 도달(폭락) 시 기회의 '초록색', 평상시(관망) '빨간/회색' 계열
             const mddColor = asset.allocation_fund !== '일상 DCA' ? 'text-green-400' : 'text-rose-400';
             const mddLabel = asset.allocation_fund !== '일상 DCA' ? `${asset.target_tier}% 티어 도달!` : 'DCA 구간 아님';
 
             card.innerHTML = `
-                <div class="flex justify-between items-start mb-4">
+                <div class="flex justify-between items-start mb-2">
                     <div>
                         <h2 class="text-2xl font-bold text-white tracking-tight">${asset.symbol}</h2>
                         <span class="text-xs text-gray-400">${asset.group}</span>
                     </div>
                     <div class="text-right">
                         <div class="text-2xl font-mono text-white">$${asset.current_price.toFixed(2)}</div>
-                        <div class="text-xs ${mddColor} font-mono">52주 고점대비 ${asset.mdd.toFixed(1)}%</div>
+                        <div class="text-xs ${mddColor} font-mono">보정 MDD: ${asset.mdd.toFixed(1)}%</div>
                     </div>
                 </div>
+
+                ${renderPerAdjustment(asset.per_data, asset.mdd)}
 
                 <div class="bg-gray-900 rounded-lg p-3 border border-gray-700 mb-4 flex justify-between items-center">
                     <div class="flex flex-col">
