@@ -1,20 +1,10 @@
 {
-  "last_updated": "2026-03-29 00:30:37 UTC",
+  "last_updated": "2026-03-29 03:45:03 UTC",
   "assets": [
     {
       "symbol": "MSFT",
       "group": "A",
       "current_price": 356.77,
-      "mdd": -50.8,
-      "target_tier": -50.0,
-      "allocation_fund": "$8,000 (8개월 치)",
-      "per_data": {
-        "current_pe": 22.33,
-        "avg_pe": 33.67,
-        "discount_rate": -33.7,
-        "bonus": 15,
-        "raw_mdd": -35.8
-      },
       "daily": {
         "rsi": 22.3,
         "vol_spike": 1.15,
@@ -30,22 +20,18 @@
         "roc2": -6.67,
         "streak": 0,
         "date": "2026-03-23"
-      }
+      },
+      "monthly_budget": 1000,
+      "auto_high_52w": 555.45,
+      "current_pe": 22.33,
+      "config_exec": 22.0,
+      "config_high": 0.0,
+      "config_pe": 33.67
     },
     {
       "symbol": "AAPL",
       "group": "A",
       "current_price": 248.8,
-      "mdd": -13.8,
-      "target_tier": 0.0,
-      "allocation_fund": "휴식 (Lockdown)",
-      "per_data": {
-        "current_pe": 31.45,
-        "avg_pe": 33.0,
-        "discount_rate": -4.7,
-        "bonus": 0,
-        "raw_mdd": -13.8
-      },
       "daily": {
         "rsi": 37.9,
         "vol_spike": 1.18,
@@ -61,22 +47,18 @@
         "roc2": -3.74,
         "streak": 0,
         "date": "2026-03-23"
-      }
+      },
+      "monthly_budget": 750,
+      "auto_high_52w": 288.62,
+      "current_pe": 31.45,
+      "config_exec": 4.8,
+      "config_high": 0.0,
+      "config_pe": 33.0
     },
     {
       "symbol": "AMZN",
       "group": "A",
       "current_price": 199.34,
-      "mdd": -37.9,
-      "target_tier": -35.0,
-      "allocation_fund": "$5,250 (7개월 치)",
-      "per_data": {
-        "current_pe": 27.76,
-        "avg_pe": 64.1,
-        "discount_rate": -56.7,
-        "bonus": 15,
-        "raw_mdd": -22.9
-      },
       "daily": {
         "rsi": 37.8,
         "vol_spike": 1.24,
@@ -92,16 +74,18 @@
         "roc2": -4.31,
         "streak": 0,
         "date": "2026-03-23"
-      }
+      },
+      "monthly_budget": 750,
+      "auto_high_52w": 258.6,
+      "current_pe": 27.76,
+      "config_exec": 7.0,
+      "config_high": 0.0,
+      "config_pe": 64.1
     },
     {
       "symbol": "PLTR",
       "group": "B",
       "current_price": 143.06,
-      "mdd": -31.1,
-      "target_tier": -30.0,
-      "allocation_fund": "휴식 (Lockdown)",
-      "per_data": null,
       "daily": {
         "rsi": 42.8,
         "vol_spike": 0.74,
@@ -117,16 +101,18 @@
         "roc2": -5.63,
         "streak": 0,
         "date": "2026-03-23"
-      }
+      },
+      "monthly_budget": 1000,
+      "auto_high_52w": 207.52,
+      "current_pe": 227.08,
+      "config_exec": 13.0,
+      "config_high": 0.0,
+      "config_pe": 0.0
     },
     {
       "symbol": "TSLA",
       "group": "B",
       "current_price": 361.83,
-      "mdd": -27.5,
-      "target_tier": -25.0,
-      "allocation_fund": "휴식 (Lockdown)",
-      "per_data": null,
       "daily": {
         "rsi": 33.9,
         "vol_spike": 1.02,
@@ -142,16 +128,18 @@
         "roc2": -17.43,
         "streak": 0,
         "date": "2026-03-23"
-      }
+      },
+      "monthly_budget": 750,
+      "auto_high_52w": 498.83,
+      "current_pe": 331.95,
+      "config_exec": 2.4,
+      "config_high": 0.0,
+      "config_pe": 0.0
     },
     {
       "symbol": "IBIT",
       "group": "C",
       "current_price": 37.4,
-      "mdd": -47.9,
-      "target_tier": -45.0,
-      "allocation_fund": "$6,750 (9개월 치)",
-      "per_data": null,
       "daily": {
         "rsi": 39.4,
         "vol_spike": 1.07,
@@ -167,16 +155,18 @@
         "roc2": 3.24,
         "streak": 1,
         "date": "2026-03-23"
-      }
+      },
+      "monthly_budget": 750,
+      "auto_high_52w": 71.82,
+      "current_pe": null,
+      "config_exec": 13.1,
+      "config_high": 0.0,
+      "config_pe": 0.0
     },
     {
       "symbol": "ETHA",
       "group": "C",
       "current_price": 15.01,
-      "mdd": -59.2,
-      "target_tier": -55.0,
-      "allocation_fund": "$9,000 (18개월 치)",
-      "per_data": null,
       "daily": {
         "rsi": 41.8,
         "vol_spike": 1.26,
@@ -192,32 +182,13 @@
         "roc2": 4.53,
         "streak": 1,
         "date": "2026-03-23"
-      }
-    },
-    {
-      "symbol": "BMNR",
-      "group": "C",
-      "current_price": 18.39,
-      "mdd": -88.6,
-      "target_tier": -85.0,
-      "allocation_fund": "$18,000 (36개월 치)",
-      "per_data": null,
-      "daily": {
-        "rsi": 38.7,
-        "vol_spike": 1.08,
-        "roc1": -3.11,
-        "roc2": -7.13,
-        "streak": 0,
-        "date": "2026-03-27"
       },
-      "weekly": {
-        "rsi": 39.9,
-        "vol_spike": 1.24,
-        "roc1": -35.04,
-        "roc2": 7.65,
-        "streak": 1,
-        "date": "2026-03-23"
-      }
+      "monthly_budget": 500,
+      "auto_high_52w": 36.8,
+      "current_pe": null,
+      "config_exec": 16.0,
+      "config_high": 0.0,
+      "config_pe": 0.0
     }
   ]
 }
