@@ -98,8 +98,9 @@ async function renderDashboard() {
             const card = document.createElement('div');
             card.className = "bg-gray-800 rounded-xl p-5 shadow-lg border border-gray-700 flex flex-col hover:border-blue-500 transition-colors duration-300";
             
-            const mddColor = asset.allocation_fund !== '일상 DCA' ? 'text-green-400' : 'text-rose-400';
-            const mddLabel = asset.allocation_fund !== '일상 DCA' ? `${asset.target_tier}% 티어 도달!` : 'DCA 구간 아님';
+            const isLockdown = asset.allocation_fund === '휴식 (Lockdown)';
+            const mddColor = !isLockdown ? 'text-green-400' : 'text-rose-400';
+            const mddLabel = !isLockdown ? `${asset.target_tier}% 티어 도달!` : '락다운 (휴식)';
 
             card.innerHTML = `
                 <div class="flex justify-between items-start mb-2">

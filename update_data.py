@@ -54,23 +54,32 @@ def get_per_adjustment(current_pe, avg_pe):
     return discount_rate, bonus
 
 def get_allocation_info(symbol, effective_dd):
-    # 매핑되지 않은 자산은 기본적으로 growth(-20% 시작) 테이블을 따름
     table_name = ASSET_TABLE_MAP.get(symbol, 'growth')
     table = MDD_TABLES[table_name]
-    allocation = "일상 DCA"
+    allocation_str = "일상 DCA"
     target_tier = 0.0
     sorted_tiers = sorted(table.keys()) 
     for tier in sorted_tiers:
         if effective_dd <= tier:
-            allocation = table[tier]
+            allocation_str = table[tier]
             target_tier = tier
             break
-    return target_tier, allocation
+            
+    # 할당 문자열에서 목표 개월 수(int) 정밀 추출
+    target_months = 0
+    if "개월" in allocation_str:
+        try:
+            target_months = int(''.join(filter(str.isdigit, allocation_str)))
+        except:
+            pass
+            
+    return target_tier, allocation_str, target_months
 
 def calc_streak(series):
-    if series.iloc[-1] <= 0: return 0
+    clean = series.dropna()
+    if len(clean) == 0 or clean.iloc[-1] <= 0: return 0
     count = 0
-    for val in series.values[::-1]:
+    for val in clean.values[::-1]:
         if val > 0: count += 1
         else: break
     return count
@@ -113,12 +122,15 @@ def main():
     for asset in config_data['tickers']:
         symbol = asset['symbol']
         try:
-            df_daily = yf.download(symbol, period="2y", interval="1d", progress=False, auto_adjust=True)
+            # 가격 왜곡 차단 옵션 유지
+            df_daily = yf.download(symbol, period="2y", interval="1d", progress=False, auto_adjust=False)
             if isinstance(df_daily.columns, pd.MultiIndex): df_daily.columns = df_daily.columns.droplevel(1)
             
             df_52w = df_daily.tail(252)
-            high_52w = df_52w['Close'].max()
-            curr_price = df_daily['Close'].iloc[-1]
+            # 장중 고가(High) 스캔 원칙 유지
+            high_52w = float(df_52w['High'].max())
+            curr_price = float(df_daily['Close'].iloc[-1])
+            
             raw_drawdown = ((curr_price - high_52w) / high_52w) * 100
             
             per_data = None
@@ -140,10 +152,29 @@ def main():
                         "raw_mdd": round(raw_drawdown, 1)
                     }
 
-            target_tier, allocation_fund = get_allocation_info(symbol, effective_dd)
+            target_tier, allocation_str, target_months = get_allocation_info(symbol, effective_dd)
+            
+            # 🚨 예산 자동 연산 로직 (구글 시트의 락다운 판별 기능 이식)
+            monthly_budget = asset.get('monthly_budget', 0)
+            executed_months = asset.get('executed_months', 0.0)
+            
+            buy_months = 0
+            if executed_months > 0:
+                buy_months = max(target_months - executed_months, 0)
+            else:
+                buy_months = max(target_months, 1) # 미집행 상태면 최소 1개월치 구매
+                
+            final_order = buy_months * monthly_budget
+            
+            # app.js UI 렌더링에 최적화된 스트링 포매팅 반환
+            if final_order > 0:
+                allocation_fund = f"${final_order:,.0f} ({int(buy_months)}개월 치)"
+            else:
+                allocation_fund = "휴식 (Lockdown)"
             
             daily_res = calc_daily_metrics(df_daily)
-            df_weekly = yf.download(symbol, period="2y", interval="1wk", progress=False, auto_adjust=True)
+            
+            df_weekly = yf.download(symbol, period="2y", interval="1wk", progress=False, auto_adjust=False)
             if isinstance(df_weekly.columns, pd.MultiIndex): df_weekly.columns = df_weekly.columns.droplevel(1)
             weekly_res = calc_weekly_metrics(df_weekly)
             
@@ -153,7 +184,7 @@ def main():
                     "mdd": round(effective_dd, 1), "target_tier": target_tier, "allocation_fund": allocation_fund,
                     "per_data": per_data, "daily": daily_res, "weekly": weekly_res
                 })
-            print(f"[{symbol}] 데이터 처리 완료")
+            print(f"[{symbol}] 데이터 처리 및 예산 연산 완료")
         except Exception as e:
             print(f"[{symbol}] 에러 발생: {e}")
             

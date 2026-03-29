@@ -1,10 +1,55 @@
 {
   "tickers": [
-    { "symbol": "MSFT", "group": "대형 우량주", "weight": 25, "rsi_buy": [40, 50], "rsi_sell": [65, 70], "stop_loss_pct": 20 },
-    { "symbol": "AMZN", "group": "대형 우량주", "weight": 20, "rsi_buy": [40, 50], "rsi_sell": [65, 70], "stop_loss_pct": 20 },
-    { "symbol": "TSLA", "group": "고성장주", "weight": 15, "rsi_buy": [35, 45], "rsi_sell": [75, 80], "stop_loss_pct": 30 },
-    { "symbol": "PLTR", "group": "고성장주", "weight": 10, "rsi_buy": [35, 45], "rsi_sell": [75, 80], "stop_loss_pct": 30 },
-    { "symbol": "IBIT", "group": "코인 ETF", "weight": 20, "rsi_buy": [35, 45], "rsi_sell": [75, 80], "stop_loss_pct": 30 },
-    { "symbol": "ETHA", "group": "코인 ETF", "weight": 10, "rsi_buy": [35, 45], "rsi_sell": [75, 80], "stop_loss_pct": 30 }
+    {
+      "symbol": "MSFT",
+      "group": "A",
+      "monthly_budget": 1000,
+      "executed_months": 22.0,
+      "avg_pe_3y": 33.67
+    },
+    {
+      "symbol": "AAPL",
+      "group": "A",
+      "monthly_budget": 750,
+      "executed_months": 4.8,
+      "avg_pe_3y": 33.00
+    },
+    {
+      "symbol": "AMZN",
+      "group": "A",
+      "monthly_budget": 750,
+      "executed_months": 7.0,
+      "avg_pe_3y": 64.10
+    },
+    {
+      "symbol": "PLTR",
+      "group": "B",
+      "monthly_budget": 1000,
+      "executed_months": 13.0
+    },
+    {
+      "symbol": "TSLA",
+      "group": "B",
+      "monthly_budget": 750,
+      "executed_months": 6.8
+    },
+    {
+      "symbol": "IBIT",
+      "group": "C",
+      "monthly_budget": 750,
+      "executed_months": 6.0
+    },
+    {
+      "symbol": "ETHA",
+      "group": "C",
+      "monthly_budget": 500,
+      "executed_months": 3.0
+    },
+    {
+      "symbol": "BMNR",
+      "group": "C",
+      "monthly_budget": 500,
+      "executed_months": 0.0
+    }
   ]
 }
