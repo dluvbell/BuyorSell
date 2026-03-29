@@ -3,8 +3,10 @@ import yfinance as yf
 import pandas as pd
 from ta.momentum import RSIIndicator
 from datetime import datetime
+import re  
+import os  
 
-# 사용자 MDD 테이블 (AMZN 독립 테이블 완벽 분리 적용)
+# 사용자 MDD 테이블
 MDD_TABLES = {
     'tech_giants': {
         -15.0: '3개월 치', -20.0: '6개월 치', -25.0: '10개월 치', -30.0: '14개월 치', 
@@ -33,7 +35,6 @@ MDD_TABLES = {
     }
 }
 
-# 5단계 테이블에 따른 정확한 매핑
 ASSET_TABLE_MAP = {
     'MSFT': 'tech_giants', 'AAPL': 'tech_giants', 
     'AMZN': 'amzn',
@@ -65,13 +66,11 @@ def get_allocation_info(symbol, effective_dd):
             target_tier = tier
             break
             
-    # 할당 문자열에서 목표 개월 수(int) 정밀 추출
     target_months = 0
     if "개월" in allocation_str:
-        try:
-            target_months = int(''.join(filter(str.isdigit, allocation_str)))
-        except:
-            pass
+        match = re.search(r'\d+', allocation_str)
+        if match:
+            target_months = int(match.group())
             
     return target_tier, allocation_str, target_months
 
@@ -85,6 +84,7 @@ def calc_streak(series):
     return count
 
 def calc_daily_metrics(df):
+    df = df.copy() 
     df['RSI'] = RSIIndicator(close=df['Close'], window=14).rsi()
     df['Vol_SMA'] = df['Volume'].rolling(window=20).mean()
     df['Vol_Spike'] = df['Volume'] / df['Vol_SMA']
@@ -100,6 +100,7 @@ def calc_daily_metrics(df):
     }
 
 def calc_weekly_metrics(df):
+    df = df.copy() 
     df['RSI'] = RSIIndicator(close=df['Close'], window=14).rsi()
     df['Vol_SMA'] = df['Volume'].rolling(window=10).mean()
     df['Vol_Spike'] = df['Volume'] / df['Vol_SMA']
@@ -115,28 +116,103 @@ def calc_weekly_metrics(df):
     }
 
 def main():
-    with open('config.json', 'r', encoding='utf-8') as f:
-        config_data = json.load(f)
+    try:
+        with open('config.json', 'r', encoding='utf-8') as f:
+            config_data = json.load(f)
+    except FileNotFoundError:
+        print("❌ config.json 파일을 찾을 수 없습니다.")
+        return
+    except json.JSONDecodeError:
+        print("❌ config.json 형식이 올바르지 않습니다.")
+        return
+        
+    # ✅ 2. tickers 키 누락 시 방어
+    if 'tickers' not in config_data:
+        print("❌ config.json에 'tickers' 항목이 없습니다.")
+        return
+
+    print("\n" + "="*50)
+    print("📈 사용자 데이터 입력 (변경할 값이 없으면 그냥 Enter를 누르세요)")
+    print("="*50)
+    
+    for asset in config_data['tickers']:
+        symbol = asset['symbol']
+        print(f"\n[{symbol}] 설정 업데이트")
+        
+        curr_exec = asset.get('executed_months', 0.0)
+        new_exec = input(f" - 현재 보유 개월 수 (현재: {curr_exec}개월): ")
+        if new_exec.strip():
+            try:
+                val = float(new_exec)
+                if val < 0:
+                    print("   ⚠️ 음수는 입력할 수 없습니다. 기존 값을 유지합니다.")
+                else:
+                    asset['executed_months'] = val
+            except ValueError:
+                print("   ⚠️ 올바른 숫자가 아닙니다. 기존 값을 유지합니다.")
+                
+        if asset.get('group') == '대형 우량주':
+            curr_pe = asset.get('avg_pe_3y', 0.0)
+            new_pe = input(f" - 3년 평균 PER (현재: {curr_pe}): ")
+            if new_pe.strip():
+                try:
+                    val = float(new_pe)
+                    if val < 0:
+                        print("   ⚠️ 음수는 입력할 수 없습니다. 기존 값을 유지합니다.")
+                    else:
+                        asset['avg_pe_3y'] = val
+                except ValueError:
+                    print("   ⚠️ 올바른 숫자가 아닙니다. 기존 값을 유지합니다.")
+
+        curr_high = asset.get('high_52w', 0.0)
+        high_display = f"{curr_high} (수동)" if curr_high > 0 else "자동계산 중"
+        high_prompt = f" - 52주 전고점 (현재: {high_display}, 자동=0, 변경없으면 Enter): " 
+        new_high = input(high_prompt)
+        if new_high.strip():
+            try:
+                val = float(new_high)
+                # ✅ 1. high_52w 음수 입력 시 경고 출력
+                if val < 0:
+                    print("   ⚠️ 음수는 입력할 수 없습니다. 기존 값을 유지합니다.")
+                elif val == 0:
+                    asset['high_52w'] = 0.0
+                else:
+                    asset['high_52w'] = val
+            except ValueError:
+                print("   ⚠️ 올바른 숫자가 아닙니다. 기존 값을 유지합니다.")
+
+    tmp_file = 'config.json.tmp'
+    with open(tmp_file, 'w', encoding='utf-8') as f:
+        json.dump(config_data, f, ensure_ascii=False, indent=2)
+    os.replace(tmp_file, 'config.json')
+        
+    print("\n" + "="*50)
+    print("✅ 데이터 수집 및 계산을 시작합니다...")
+    print("="*50 + "\n")
+
     results = {"last_updated": datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC'), "assets": []}
     
     for asset in config_data['tickers']:
         symbol = asset['symbol']
         try:
-            # 가격 왜곡 차단 옵션 유지
-            df_daily = yf.download(symbol, period="2y", interval="1d", progress=False, auto_adjust=False)
+            df_daily = yf.download(symbol, period="2y", interval="1d", progress=False, auto_adjust=True)
             if isinstance(df_daily.columns, pd.MultiIndex): df_daily.columns = df_daily.columns.droplevel(1)
             
-            df_52w = df_daily.tail(252)
-            # 장중 고가(High) 스캔 원칙 유지
-            high_52w = float(df_52w['High'].max())
+            is_manual_high = asset.get('high_52w', 0.0) > 0
+            if is_manual_high:
+                high_52w = float(asset['high_52w'])
+            else:
+                cutoff = df_daily.index[-1] - pd.DateOffset(years=1)
+                df_52w = df_daily[df_daily.index >= cutoff]
+                high_52w = float(df_52w['High'].max())
+                
             curr_price = float(df_daily['Close'].iloc[-1])
-            
             raw_drawdown = ((curr_price - high_52w) / high_52w) * 100
             
             per_data = None
             effective_dd = raw_drawdown
             
-            if asset.get('group') == 'A' and 'avg_pe_3y' in asset:
+            if asset.get('group') == '대형 우량주' and asset.get('avg_pe_3y', 0.0) > 0:
                 ticker_obj = yf.Ticker(symbol)
                 current_pe = ticker_obj.info.get('trailingPE')
                 if not current_pe: current_pe = ticker_obj.info.get('forwardPE')
@@ -154,27 +230,29 @@ def main():
 
             target_tier, allocation_str, target_months = get_allocation_info(symbol, effective_dd)
             
-            # 🚨 예산 자동 연산 로직 (구글 시트의 락다운 판별 기능 이식)
             monthly_budget = asset.get('monthly_budget', 0)
             executed_months = asset.get('executed_months', 0.0)
             
-            buy_months = 0
-            if executed_months > 0:
+            if target_months == 0:
+                buy_months = 0
+            elif executed_months > 0:
                 buy_months = max(target_months - executed_months, 0)
             else:
-                buy_months = max(target_months, 1) # 미집행 상태면 최소 1개월치 구매
+                buy_months = target_months
                 
             final_order = buy_months * monthly_budget
             
-            # app.js UI 렌더링에 최적화된 스트링 포매팅 반환
-            if final_order > 0:
-                allocation_fund = f"${final_order:,.0f} ({int(buy_months)}개월 치)"
-            else:
+            buy_months_str = f"{int(buy_months)}" if float(buy_months).is_integer() else f"{buy_months:.1f}"
+            
+            if buy_months == 0:
                 allocation_fund = "휴식 (Lockdown)"
+            elif monthly_budget == 0:
+                allocation_fund = f"예산 미설정 ({buy_months_str}개월 치 필요)"
+            else:
+                allocation_fund = f"${final_order:,.0f} ({buy_months_str}개월 치)"
             
             daily_res = calc_daily_metrics(df_daily)
-            
-            df_weekly = yf.download(symbol, period="2y", interval="1wk", progress=False, auto_adjust=False)
+            df_weekly = yf.download(symbol, period="2y", interval="1wk", progress=False, auto_adjust=True)
             if isinstance(df_weekly.columns, pd.MultiIndex): df_weekly.columns = df_weekly.columns.droplevel(1)
             weekly_res = calc_weekly_metrics(df_weekly)
             
@@ -182,14 +260,21 @@ def main():
                 results['assets'].append({
                     "symbol": symbol, "group": asset['group'], "current_price": round(curr_price, 2),
                     "mdd": round(effective_dd, 1), "target_tier": target_tier, "allocation_fund": allocation_fund,
-                    "per_data": per_data, "daily": daily_res, "weekly": weekly_res
+                    "per_data": per_data, "daily": daily_res, "weekly": weekly_res,
+                    "high_52w_used": round(high_52w, 2),
+                    "high_52w_source": "manual" if is_manual_high else "auto"
                 })
-            print(f"[{symbol}] 데이터 처리 및 예산 연산 완료")
+                print(f"[{symbol}] 데이터 처리 완료")
+            else:
+                # ✅ 3. 지표 계산 실패 시 경고 출력
+                print(f"[{symbol}] ⚠️ 지표 계산 실패로 결과에서 제외됨")
         except Exception as e:
             print(f"[{symbol}] 에러 발생: {e}")
             
-    with open('dashboard_data.json', 'w', encoding='utf-8') as f:
+    tmp_out = 'dashboard_data.json.tmp'
+    with open(tmp_out, 'w', encoding='utf-8') as f:
         json.dump(results, f, ensure_ascii=False, indent=2)
+    os.replace(tmp_out, 'dashboard_data.json')
 
 if __name__ == "__main__":
     main()
