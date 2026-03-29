@@ -31,25 +31,19 @@
       "symbol": "TSLA",
       "group": "B",
       "monthly_budget": 750,
-      "executed_months": 6.8
+      "executed_months": 2.4
     },
     {
       "symbol": "IBIT",
       "group": "C",
       "monthly_budget": 750,
-      "executed_months": 6.0
+      "executed_months": 13.1
     },
     {
       "symbol": "ETHA",
       "group": "C",
       "monthly_budget": 500,
-      "executed_months": 3.0
-    },
-    {
-      "symbol": "BMNR",
-      "group": "C",
-      "monthly_budget": 500,
-      "executed_months": 0.0
+      "executed_months": 16.0
     }
   ]
 }
