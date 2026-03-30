@@ -2,7 +2,8 @@ name: Update Swing Dashboard Data
 
 on:
   schedule:
-    - cron: '0 14 * * 6'
+    # 월~금(1-5), UTC 14시~22시까지 2시간 간격 실행 (토론토 EST/EDT 장중 및 마감 완벽 대응)
+    - cron: '0 14-22/2 * * 1-5'
   workflow_dispatch:
 
 permissions:
