@@ -316,6 +316,10 @@ function renderPanel(title, data, unitName) {
                     <span class="font-bold ${data.roc2 >= 0 ? 'text-green-400' : 'text-red-400'}">${data.roc2.toFixed(1)}%</span>
                 </div>
                 <div class="flex justify-between col-span-2 border-t border-gray-700 pt-2 mt-1">
+                    <span class="text-gray-500">ROC가가속(0수렴)</span>
+                    <span class="font-bold ${data.roc3 >= 0 ? 'text-green-400' : 'text-red-400'}">${data.roc3 > 0 ? '+' : ''}${data.roc3.toFixed(1)}%</span>
+                </div>
+                <div class="flex justify-between col-span-2">
                     <span class="text-gray-500">양전환Streak</span>
                     <span class="font-bold ${getMetricColor('Streak', data.streak)}">${data.streak}${unitName} 연속</span>
                 </div>
