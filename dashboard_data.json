@@ -1,29 +1,31 @@
 {
-  "last_updated": "2026-03-29 13:17:31 UTC",
+  "last_updated": "2026-03-30 20:47:56 UTC",
   "assets": [
     {
       "symbol": "MSFT",
       "group": "A",
-      "current_price": 356.77,
+      "current_price": 358.96,
       "daily": {
-        "rsi": 22.3,
-        "vol_spike": 1.15,
-        "roc1": -9.16,
-        "roc2": -5.29,
+        "rsi": 24.8,
+        "vol_spike": 1.24,
+        "roc1": -9.93,
+        "roc2": -9.55,
+        "roc3": -9.51,
         "streak": 0,
-        "date": "2026-03-27"
+        "date": "2026-03-30"
       },
       "weekly": {
-        "rsi": 25.3,
-        "vol_spike": 1.13,
-        "roc1": -26.85,
-        "roc2": -6.67,
+        "rsi": 26.3,
+        "vol_spike": 0.23,
+        "roc1": -24.1,
+        "roc2": -8.74,
+        "roc3": -12.64,
         "streak": 0,
-        "date": "2026-03-23"
+        "date": "2026-03-30"
       },
       "monthly_budget": 1000,
       "auto_high_52w": 555.45,
-      "current_pe": 22.33,
+      "current_pe": 22.46,
       "config_exec": 22.0,
       "config_high": 0.0,
       "config_pe": 33.67
@@ -31,26 +33,28 @@
     {
       "symbol": "AAPL",
       "group": "A",
-      "current_price": 248.8,
+      "current_price": 246.63,
       "daily": {
-        "rsi": 37.9,
-        "vol_spike": 1.18,
-        "roc1": -5.82,
-        "roc2": 0.45,
-        "streak": 1,
-        "date": "2026-03-27"
+        "rsi": 35.5,
+        "vol_spike": 0.86,
+        "roc1": -6.83,
+        "roc2": -1.31,
+        "roc3": 3.05,
+        "streak": 0,
+        "date": "2026-03-30"
       },
       "weekly": {
-        "rsi": 46.2,
-        "vol_spike": 1.06,
+        "rsi": 45.0,
+        "vol_spike": 0.16,
         "roc1": -9.0,
-        "roc2": -3.74,
+        "roc2": -1.35,
+        "roc3": 9.89,
         "streak": 0,
-        "date": "2026-03-23"
+        "date": "2026-03-30"
       },
       "monthly_budget": 750,
       "auto_high_52w": 288.62,
-      "current_pe": 31.45,
+      "current_pe": 31.18,
       "config_exec": 4.8,
       "config_high": 0.0,
       "config_pe": 33.0
@@ -58,26 +62,28 @@
     {
       "symbol": "AMZN",
       "group": "A",
-      "current_price": 199.34,
+      "current_price": 200.95,
       "daily": {
-        "rsi": 37.8,
-        "vol_spike": 1.24,
-        "roc1": -5.08,
-        "roc2": -2.82,
+        "rsi": 39.8,
+        "vol_spike": 0.95,
+        "roc1": -3.57,
+        "roc2": -5.94,
+        "roc3": -1.8,
         "streak": 0,
-        "date": "2026-03-27"
+        "date": "2026-03-30"
       },
       "weekly": {
-        "rsi": 39.2,
-        "vol_spike": 1.06,
-        "roc1": -14.27,
-        "roc2": -4.31,
+        "rsi": 40.2,
+        "vol_spike": 0.18,
+        "roc1": -11.28,
+        "roc2": -4.17,
+        "roc3": -11.01,
         "streak": 0,
-        "date": "2026-03-23"
+        "date": "2026-03-30"
       },
       "monthly_budget": 750,
       "auto_high_52w": 258.6,
-      "current_pe": 27.76,
+      "current_pe": 27.99,
       "config_exec": 7.0,
       "config_high": 0.0,
       "config_pe": 64.1
@@ -85,26 +91,28 @@
     {
       "symbol": "PLTR",
       "group": "B",
-      "current_price": 143.06,
+      "current_price": 137.55,
       "daily": {
-        "rsi": 42.8,
-        "vol_spike": 0.74,
-        "roc1": 4.28,
-        "roc2": -7.14,
+        "rsi": 38.7,
+        "vol_spike": 0.82,
+        "roc1": -5.25,
+        "roc2": -28.4,
+        "roc3": -35.34,
         "streak": 0,
-        "date": "2026-03-27"
+        "date": "2026-03-30"
       },
       "weekly": {
-        "rsi": 44.4,
-        "vol_spike": 1.04,
-        "roc1": -24.19,
-        "roc2": -5.63,
+        "rsi": 42.3,
+        "vol_spike": 0.16,
+        "roc1": -18.06,
+        "roc2": -4.52,
+        "roc3": -14.61,
         "streak": 0,
-        "date": "2026-03-23"
+        "date": "2026-03-30"
       },
       "monthly_budget": 1000,
       "auto_high_52w": 207.52,
-      "current_pe": 227.08,
+      "current_pe": 218.33,
       "config_exec": 13.0,
       "config_high": 0.0,
       "config_pe": 0.0
@@ -112,26 +120,28 @@
     {
       "symbol": "TSLA",
       "group": "B",
-      "current_price": 361.83,
+      "current_price": 355.28,
       "daily": {
-        "rsi": 33.9,
-        "vol_spike": 1.02,
-        "roc1": -10.11,
-        "roc2": 0.54,
-        "streak": 1,
-        "date": "2026-03-27"
+        "rsi": 31.8,
+        "vol_spike": 1.05,
+        "roc1": -11.91,
+        "roc2": -7.16,
+        "roc3": -7.66,
+        "streak": 0,
+        "date": "2026-03-30"
       },
       "weekly": {
-        "rsi": 38.5,
-        "vol_spike": 1.24,
-        "roc1": -23.86,
-        "roc2": -17.43,
+        "rsi": 37.2,
+        "vol_spike": 0.24,
+        "roc1": -18.9,
+        "roc2": -6.09,
+        "roc3": 2.43,
         "streak": 0,
-        "date": "2026-03-23"
+        "date": "2026-03-30"
       },
       "monthly_budget": 750,
       "auto_high_52w": 498.83,
-      "current_pe": 331.95,
+      "current_pe": 325.94,
       "config_exec": 2.4,
       "config_high": 0.0,
       "config_pe": 0.0
@@ -139,22 +149,24 @@
     {
       "symbol": "IBIT",
       "group": "C",
-      "current_price": 37.4,
+      "current_price": 37.68,
       "daily": {
-        "rsi": 39.4,
-        "vol_spike": 1.07,
-        "roc1": 0.56,
-        "roc2": -2.95,
+        "rsi": 40.7,
+        "vol_spike": 0.69,
+        "roc1": -3.87,
+        "roc2": -13.44,
+        "roc3": -15.4,
         "streak": 0,
-        "date": "2026-03-27"
+        "date": "2026-03-30"
       },
       "weekly": {
-        "rsi": 31.7,
-        "vol_spike": 0.92,
-        "roc1": -24.61,
-        "roc2": 3.24,
-        "streak": 1,
-        "date": "2026-03-23"
+        "rsi": 32.4,
+        "vol_spike": 0.13,
+        "roc1": -26.03,
+        "roc2": -2.18,
+        "roc3": -10.94,
+        "streak": 0,
+        "date": "2026-03-30"
       },
       "monthly_budget": 750,
       "auto_high_52w": 71.82,
@@ -166,22 +178,24 @@
     {
       "symbol": "ETHA",
       "group": "C",
-      "current_price": 15.01,
+      "current_price": 15.27,
       "daily": {
-        "rsi": 41.8,
-        "vol_spike": 1.26,
-        "roc1": 3.37,
-        "roc2": -4.75,
+        "rsi": 43.8,
+        "vol_spike": 1.05,
+        "roc1": -0.65,
+        "roc2": -16.52,
+        "roc3": -18.34,
         "streak": 0,
-        "date": "2026-03-27"
+        "date": "2026-03-30"
       },
       "weekly": {
-        "rsi": 34.6,
-        "vol_spike": 1.25,
-        "roc1": -32.2,
-        "roc2": 4.53,
-        "streak": 1,
-        "date": "2026-03-23"
+        "rsi": 35.6,
+        "vol_spike": 0.22,
+        "roc1": -35.24,
+        "roc2": -0.58,
+        "roc3": -6.7,
+        "streak": 0,
+        "date": "2026-03-30"
       },
       "monthly_budget": 500,
       "auto_high_52w": 36.8,
