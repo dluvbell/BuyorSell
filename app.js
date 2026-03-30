@@ -175,7 +175,7 @@ function renderCards() {
                         class="control-input bg-gray-700 text-cyan-400 border border-gray-600 rounded px-3 py-1 text-right w-28 font-bold"
                         oninput="recalculateCard('${symbol}', 'avg_pe_3y', this.value)">
                 </div>
-                <div class="text-gray-600 text-xs text-right mt-1">야후 현재 PER: ${asset.current_pe ? asset.current_pe.toFixed(2) : 'N/A'}</div>
+                <div class="text-gray-600 text-xs text-right mt-1">야후 현재 PER (${asset.pe_type || 'N/A'}): ${asset.current_pe ? asset.current_pe.toFixed(2) : 'N/A'}</div>
                 ` : ''}
             </div>
 
