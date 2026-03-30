@@ -35,7 +35,7 @@ def calc_daily_metrics(df):
 def calc_weekly_metrics(df):
     df = df.copy() 
     df['RSI'] = RSIIndicator(close=df['Close'], window=14).rsi()
-    df['Vol_SMA'] = df['Volume'].rolling(window=10).mean()
+    df['Vol_SMA'] = df['Volume'].rolling(window=13).mean()
     df['Vol_Spike'] = df['Volume'] / df['Vol_SMA']
     df['ROC1'] = df['Close'].pct_change(periods=13) * 100
     df['ROC2'] = df['ROC1'] - df['ROC1'].shift(4)
