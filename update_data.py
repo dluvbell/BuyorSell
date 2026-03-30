@@ -2,7 +2,7 @@ import json
 import yfinance as yf
 import pandas as pd
 from ta.momentum import RSIIndicator
-from datetime import datetime
+from datetime import datetime, timezone # 🚨 수정: timezone 추가
 import os
 
 def calc_streak(series):
@@ -58,13 +58,14 @@ def main():
         print(f"설정 파일 로드 실패: {e}")
         return
 
-    results = {"last_updated": datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC'), "assets": []}
+    # 🚨 수정: 완벽한 UTC 시간 명시를 위해 timezone.utc 적용
+    results = {"last_updated": datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC'), "assets": []}
     
     for asset in config_data.get('tickers', []):
         symbol = asset['symbol']
         try:
-            # 가격 왜곡 차단 및 분할 정확도 유지
-            df_daily = yf.download(symbol, period="2y", interval="1d", progress=False, auto_adjust=False)
+            # 🚨 수정: 주식 분할/배당 왜곡 방지를 위해 auto_adjust=True 로 변경
+            df_daily = yf.download(symbol, period="2y", interval="1d", progress=False, auto_adjust=True)
             if isinstance(df_daily.columns, pd.MultiIndex): df_daily.columns = df_daily.columns.droplevel(1)
             
             # 정확히 1년 전 날짜 기준으로 장중 고점(High) 필터링
@@ -75,12 +76,16 @@ def main():
             curr_price = float(df_daily['Close'].iloc[-1])
             
             ticker_obj = yf.Ticker(symbol)
+            pe_type = "Trailing" # 🚨 추가
             current_pe = ticker_obj.info.get('trailingPE')
-            if not current_pe: current_pe = ticker_obj.info.get('forwardPE')
+            if not current_pe: 
+                current_pe = ticker_obj.info.get('forwardPE')
+                pe_type = "Forward" if current_pe else None # 🚨 추가
 
             daily_res = calc_daily_metrics(df_daily)
             
-            df_weekly = yf.download(symbol, period="2y", interval="1wk", progress=False, auto_adjust=False)
+            # 🚨 수정: 주식 분할/배당 왜곡 방지를 위해 auto_adjust=True 로 변경
+            df_weekly = yf.download(symbol, period="2y", interval="1wk", progress=False, auto_adjust=True)
             if isinstance(df_weekly.columns, pd.MultiIndex): df_weekly.columns = df_weekly.columns.droplevel(1)
             weekly_res = calc_weekly_metrics(df_weekly)
             
@@ -95,6 +100,7 @@ def main():
                     "monthly_budget": asset.get('monthly_budget', 0),
                     "auto_high_52w": round(auto_high_52w, 2),
                     "current_pe": round(current_pe, 2) if current_pe else None,
+                    "pe_type": pe_type, # 🚨 추가
                     "config_exec": asset.get('executed_months', 0.0),
                     "config_high": asset.get('high_52w', 0.0),
                     "config_pe": asset.get('avg_pe_3y', 0.0)
