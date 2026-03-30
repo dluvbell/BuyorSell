@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-03-30 22:35:32 UTC",
+  "last_updated": "2026-03-30 23:22:34 UTC",
   "assets": [
     {
       "symbol": "MSFT",
@@ -10,22 +10,23 @@
         "vol_spike": 1.24,
         "roc1": -9.93,
         "roc2": -9.55,
-        "roc3": -9.51,
+        "roc3": -9.28,
         "streak": 0,
         "date": "2026-03-30"
       },
       "weekly": {
-        "rsi": 26.3,
-        "vol_spike": 0.23,
-        "roc1": -24.1,
-        "roc2": -8.74,
-        "roc3": -12.64,
+        "rsi": 26.5,
+        "vol_spike": 0.25,
+        "roc1": -23.93,
+        "roc2": -8.76,
+        "roc3": -12.71,
         "streak": 0,
         "date": "2026-03-30"
       },
       "monthly_budget": 1000,
-      "auto_high_52w": 555.45,
+      "auto_high_52w": 552.24,
       "current_pe": 22.46,
+      "pe_type": "Trailing",
       "config_exec": 22.0,
       "config_high": 0.0,
       "config_pe": 33.67
@@ -35,7 +36,7 @@
       "group": "A",
       "current_price": 246.63,
       "daily": {
-        "rsi": 35.5,
+        "rsi": 35.6,
         "vol_spike": 0.95,
         "roc1": -6.83,
         "roc2": -1.31,
@@ -44,17 +45,18 @@
         "date": "2026-03-30"
       },
       "weekly": {
-        "rsi": 45.0,
+        "rsi": 45.2,
         "vol_spike": 0.18,
-        "roc1": -9.0,
+        "roc1": -8.91,
         "roc2": -1.35,
-        "roc3": 9.89,
+        "roc3": 9.91,
         "streak": 0,
         "date": "2026-03-30"
       },
       "monthly_budget": 750,
-      "auto_high_52w": 288.62,
+      "auto_high_52w": 288.35,
       "current_pe": 31.18,
+      "pe_type": "Trailing",
       "config_exec": 4.8,
       "config_high": 0.0,
       "config_pe": 33.0
@@ -74,7 +76,7 @@
       },
       "weekly": {
         "rsi": 40.2,
-        "vol_spike": 0.18,
+        "vol_spike": 0.19,
         "roc1": -11.28,
         "roc2": -4.17,
         "roc3": -11.01,
@@ -84,6 +86,7 @@
       "monthly_budget": 750,
       "auto_high_52w": 258.6,
       "current_pe": 27.99,
+      "pe_type": "Trailing",
       "config_exec": 7.0,
       "config_high": 0.0,
       "config_pe": 64.1
@@ -103,7 +106,7 @@
       },
       "weekly": {
         "rsi": 42.3,
-        "vol_spike": 0.16,
+        "vol_spike": 0.17,
         "roc1": -18.06,
         "roc2": -4.52,
         "roc3": -14.61,
@@ -113,6 +116,7 @@
       "monthly_budget": 1000,
       "auto_high_52w": 207.52,
       "current_pe": 218.33,
+      "pe_type": "Trailing",
       "config_exec": 13.0,
       "config_high": 0.0,
       "config_pe": 0.0
@@ -132,7 +136,7 @@
       },
       "weekly": {
         "rsi": 37.2,
-        "vol_spike": 0.24,
+        "vol_spike": 0.23,
         "roc1": -18.9,
         "roc2": -6.09,
         "roc3": 2.43,
@@ -142,6 +146,7 @@
       "monthly_budget": 750,
       "auto_high_52w": 498.83,
       "current_pe": 325.94,
+      "pe_type": "Trailing",
       "config_exec": 2.4,
       "config_high": 0.0,
       "config_pe": 0.0
@@ -171,6 +176,7 @@
       "monthly_budget": 750,
       "auto_high_52w": 71.82,
       "current_pe": null,
+      "pe_type": null,
       "config_exec": 13.1,
       "config_high": 0.0,
       "config_pe": 0.0
@@ -200,6 +206,7 @@
       "monthly_budget": 500,
       "auto_high_52w": 36.8,
       "current_pe": null,
+      "pe_type": null,
       "config_exec": 16.0,
       "config_high": 0.0,
       "config_pe": 0.0
