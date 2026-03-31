@@ -81,7 +81,6 @@ function getOverride(symbol, field, fallback) {
     return fallback;
 }
 
-// 🚨 버그 픽스: 입력창을 비웠을 때(NaN) 해당 오버라이드 삭제 (config.json 원본값으로 자연 복귀)
 function saveOverride(symbol, field, value) {
     let overrides = JSON.parse(localStorage.getItem('portfolio_overrides') || '{}');
     if (!overrides[symbol]) overrides[symbol] = {};
@@ -97,16 +96,87 @@ function saveOverride(symbol, field, value) {
 }
 
 const USD = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
-// 🚨 버그 픽스: 주문 금액 출력 시 뒤에 붙는 '.00' 센트 단위 강제 제거용 포매터 추가
 const USD_ORDER = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 
 let gAssetsRawData = {}; 
+
+function generateParkingSparkline(data) {
+    if (!data || !data.combined_hist || data.combined_hist.length === 0) return '';
+    
+    const width = 800; 
+    const height = 120;
+    const padding = 10;
+    
+    const allVals = [...data.combined_hist, ...data.sgov_hist, ...data.bil_hist];
+    let min = Math.min(...allVals, 0);
+    let max = Math.max(...allVals, 0);
+    
+    if (min === max) { min -= 1; max += 1; }
+    
+    const range = max - min;
+    const len = data.combined_hist.length;
+    const stepX = width / (len > 1 ? len - 1 : 1);
+    
+    const getY = (val) => padding + (height - 2 * padding) * (1 - (val - min) / range);
+    // 🚨 추가: 실제 최고점의 Y 좌표를 정밀하게 산출
+    const maxY = getY(max);
+    
+    let pathSgov = '', pathBil = '', pathComb = '';
+    
+    for (let i = 0; i < len; i++) {
+        const x = i * stepX;
+        const ys = getY(data.sgov_hist[i]);
+        const yb = getY(data.bil_hist[i]);
+        const yc = getY(data.combined_hist[i]);
+        
+        if (i === 0) {
+            pathSgov += `M ${x} ${ys} `;
+            pathBil += `M ${x} ${yb} `;
+            pathComb += `M ${x} ${yc} `;
+        } else {
+            pathSgov += `L ${x} ${ys} `;
+            pathBil += `L ${x} ${yb} `;
+            pathComb += `L ${x} ${yc} `;
+        }
+    }
+    
+    return `
+    <div class="bg-gray-800 rounded-xl p-5 shadow-lg border border-gray-700 mb-8">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-black text-white tracking-tight">대기자금 레이더 (SGOV + BIL)</h2>
+            <div class="flex gap-4 text-xs font-mono">
+                <span class="flex items-center gap-1"><span class="w-3 h-0.5 bg-blue-400 inline-block"></span>SGOV</span>
+                <span class="flex items-center gap-1"><span class="w-3 h-0.5 bg-gray-400 inline-block"></span>BIL</span>
+                <span class="flex items-center gap-1"><span class="w-3 h-1 bg-white inline-block"></span>합산</span>
+            </div>
+        </div>
+        <div class="text-xs text-gray-500 font-mono mb-2">최근 60거래일 자금 흐름 (Billion USD)</div>
+        <svg width="100%" height="${height}" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" class="overflow-visible mt-2">
+            <line x1="0" y1="${maxY}" x2="${width}" y2="${maxY}" stroke="#4B5563" stroke-width="1" stroke-dasharray="2,2" vector-effect="non-scaling-stroke" />
+            <path d="${pathSgov}" fill="none" stroke="#60A5FA" stroke-width="1" vector-effect="non-scaling-stroke" />
+            <path d="${pathBil}" fill="none" stroke="#9CA3AF" stroke-width="1" vector-effect="non-scaling-stroke" />
+            <path d="${pathComb}" fill="none" stroke="#FFFFFF" stroke-width="2.5" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+    </div>
+    `;
+}
 
 async function init() {
     try {
         const dashboardRes = await fetch('dashboard_data.json').then(r => r.json());
         document.getElementById('last-updated').innerText = dashboardRes.last_updated;
         
+        if (dashboardRes.parking_data) {
+            const grid = document.getElementById('crypto-grid');
+            let parkingPanel = document.getElementById('parking-panel');
+            if (!parkingPanel) {
+                parkingPanel = document.createElement('div');
+                parkingPanel.id = 'parking-panel';
+                grid.parentNode.insertBefore(parkingPanel, grid);
+            }
+            parkingPanel.innerHTML = generateParkingSparkline(dashboardRes.parking_data);
+        }
+
         dashboardRes.assets.forEach(a => gAssetsRawData[a.symbol] = a);
         renderCards();
     } catch (error) {
@@ -253,7 +323,6 @@ function recalculateCard(symbol, field, newValue) {
     
     const finalOrder = buyMonths * monthlyBudget;
     
-    // 🚨 버그 픽스: USD_ORDER 포매터를 적용하여 '.00' 소수점 찌꺼기 완벽 제거
     if (finalOrder > 0) {
         orderEl.className = 'bg-gray-900 border border-green-700/50 rounded-lg p-4 mb-6 flex items-center justify-between text-green-400';
         orderEl.innerHTML = `
@@ -293,37 +362,94 @@ function recalculateCard(symbol, field, newValue) {
     }
 }
 
+function generateSparkline(roc2_hist, roc3_hist) {
+    if (!roc2_hist || !roc3_hist || roc2_hist.length === 0) return '';
+    
+    const width = 300; 
+    const height = 40;
+    const padding = 5;
+    
+    const allVals = [...roc2_hist, ...roc3_hist];
+    let min = Math.min(...allVals, 0);
+    let max = Math.max(...allVals, 0);
+    
+    if (min === max) { min -= 1; max += 1; }
+    
+    const range = max - min;
+    const len = roc2_hist.length;
+    const stepX = width / (len > 1 ? len - 1 : 1);
+    
+    const getY = (val) => padding + (height - 2 * padding) * (1 - (val - min) / range);
+    const zeroY = getY(0);
+    
+    let path2 = '';
+    let path3 = '';
+    
+    for (let i = 0; i < len; i++) {
+        const x = i * stepX;
+        const y2 = getY(roc2_hist[i]);
+        const y3 = getY(roc3_hist[i]);
+        if (i === 0) {
+            path2 += `M ${x} ${y2} `;
+            path3 += `M ${x} ${y3} `;
+        } else {
+            path2 += `L ${x} ${y2} `;
+            path3 += `L ${x} ${y3} `;
+        }
+    }
+    
+    return `
+    <div class="mt-3 border-t border-gray-700 pt-3">
+        <div class="flex justify-between items-center mb-1 text-[10px] text-gray-400 font-mono">
+            <span>ROC 듀얼 트래킹</span>
+            <div class="flex gap-2">
+                <span class="flex items-center gap-1"><span class="w-2 h-0.5 bg-yellow-400 inline-block"></span>ROC2(가속)</span>
+                <span class="flex items-center gap-1"><span class="w-2 h-px bg-red-400 inline-block"></span>ROC3(가가속)</span>
+            </div>
+        </div>
+        <svg width="100%" height="${height}" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" class="overflow-visible mt-2">
+            <line x1="0" y1="${zeroY}" x2="${width}" y2="${zeroY}" stroke="#4B5563" stroke-width="1" stroke-dasharray="2,2" vector-effect="non-scaling-stroke" />
+            <path d="${path3}" fill="none" stroke="#F87171" stroke-width="1" vector-effect="non-scaling-stroke" />
+            <path d="${path2}" fill="none" stroke="#FACC15" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+    </div>
+    `;
+}
+
 function renderPanel(title, data, unitName) {
     if (!data) return '<div class="text-gray-600 text-xs">데이터 부족</div>';
     return `
-        <div class="bg-gray-900 rounded-lg p-4 border border-gray-700">
-            <h3 class="text-gray-400 text-xs font-mono mb-3 tracking-wider">${title} <span class="text-gray-600">(${data.date})</span></h3>
-            <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm font-mono">
-                <div class="flex justify-between">
-                    <span class="text-gray-500">RSI</span>
-                    <span class="font-bold ${getMetricColor('RSI', data.rsi)}">${data.rsi.toFixed(1)}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-500">Vol폭발</span>
-                    <span class="font-bold ${getMetricColor('Spike', data.vol_spike)}">${data.vol_spike.toFixed(1)}x</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-500">ROC속도</span>
-                    <span class="font-bold ${data.roc1 >= 0 ? 'text-green-400' : 'text-red-400'}">${data.roc1.toFixed(1)}%</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-500">ROC가속</span>
-                    <span class="font-bold ${data.roc2 >= 0 ? 'text-green-400' : 'text-red-400'}">${data.roc2.toFixed(1)}%</span>
-                </div>
-                <div class="flex justify-between col-span-2 border-t border-gray-700 pt-2 mt-1">
-                    <span class="text-gray-500">ROC가가속(0수렴)</span>
-                    <span class="font-bold ${data.roc3 >= 0 ? 'text-green-400' : 'text-red-400'}">${data.roc3 > 0 ? '+' : ''}${data.roc3.toFixed(1)}%</span>
-                </div>
-                <div class="flex justify-between col-span-2">
-                    <span class="text-gray-500">양전환Streak</span>
-                    <span class="font-bold ${getMetricColor('Streak', data.streak)}">${data.streak}${unitName} 연속</span>
+        <div class="bg-gray-900 rounded-lg p-4 border border-gray-700 flex flex-col justify-between">
+            <div>
+                <h3 class="text-gray-400 text-xs font-mono mb-3 tracking-wider">${title} <span class="text-gray-600">(${data.date})</span></h3>
+                <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm font-mono">
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">RSI</span>
+                        <span class="font-bold ${getMetricColor('RSI', data.rsi)}">${data.rsi.toFixed(1)}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Vol폭발</span>
+                        <span class="font-bold ${getMetricColor('Spike', data.vol_spike)}">${data.vol_spike.toFixed(1)}x</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">ROC속도</span>
+                        <span class="font-bold ${data.roc1 >= 0 ? 'text-green-400' : 'text-red-400'}">${data.roc1.toFixed(1)}%</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">ROC가속</span>
+                        <span class="font-bold ${data.roc2 >= 0 ? 'text-green-400' : 'text-red-400'}">${data.roc2.toFixed(1)}%</span>
+                    </div>
+                    <div class="flex justify-between col-span-2 border-t border-gray-700 pt-2 mt-1">
+                        <span class="text-gray-500">ROC가가속(0수렴)</span>
+                        <span class="font-bold ${data.roc3 >= 0 ? 'text-green-400' : 'text-red-400'}">${data.roc3 > 0 ? '+' : ''}${data.roc3.toFixed(1)}%</span>
+                    </div>
+                    <div class="flex justify-between col-span-2">
+                        <span class="text-gray-500">양전환Streak</span>
+                        <span class="font-bold ${getMetricColor('Streak', data.streak)}">${data.streak}${unitName} 연속</span>
+                    </div>
                 </div>
             </div>
+            ${generateSparkline(data.roc2_hist, data.roc3_hist)}
         </div>
     `;
 }
