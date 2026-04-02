@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-04-02 20:06:40 UTC",
+  "last_updated": "2026-04-02 20:51:40 UTC",
   "assets": [
     {
       "symbol": "MSFT",
@@ -7,7 +7,7 @@
       "current_price": 373.46,
       "daily": {
         "rsi": 39.5,
-        "vol_spike": 0.71,
+        "vol_spike": 0.73,
         "roc1": -9.06,
         "roc2": -0.16,
         "roc3": 6.37,
@@ -60,7 +60,7 @@
       },
       "weekly": {
         "rsi": 32.2,
-        "vol_spike": 0.82,
+        "vol_spike": 0.83,
         "roc1": -20.85,
         "roc2": -5.69,
         "roc3": -9.63,
