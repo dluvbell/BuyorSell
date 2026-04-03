@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-04-02 20:51:40 UTC",
+  "last_updated": "2026-04-03 13:37:05 UTC",
   "assets": [
     {
       "symbol": "MSFT",
@@ -7,7 +7,7 @@
       "current_price": 373.46,
       "daily": {
         "rsi": 39.5,
-        "vol_spike": 0.73,
+        "vol_spike": 0.74,
         "roc1": -9.06,
         "roc2": -0.16,
         "roc3": 6.37,
@@ -60,7 +60,7 @@
       },
       "weekly": {
         "rsi": 32.2,
-        "vol_spike": 0.83,
+        "vol_spike": 0.95,
         "roc1": -20.85,
         "roc2": -5.69,
         "roc3": -9.63,
@@ -99,7 +99,7 @@
       },
       "monthly_budget": 1000,
       "auto_high_52w": 552.24,
-      "current_pe": 23.36,
+      "current_pe": 23.37,
       "pe_type": "Trailing",
       "config_exec": 22.0,
       "config_high": 0.0,
@@ -111,7 +111,7 @@
       "current_price": 255.92,
       "daily": {
         "rsi": 50.4,
-        "vol_spike": 0.67,
+        "vol_spike": 0.78,
         "roc1": -1.68,
         "roc2": 5.67,
         "roc3": 8.56,
@@ -164,7 +164,7 @@
       },
       "weekly": {
         "rsi": 50.4,
-        "vol_spike": 0.68,
+        "vol_spike": 0.81,
         "roc1": -5.48,
         "roc2": 2.08,
         "roc3": 13.34,
@@ -203,7 +203,7 @@
       },
       "monthly_budget": 750,
       "auto_high_52w": 288.35,
-      "current_pe": 32.39,
+      "current_pe": 32.35,
       "pe_type": "Trailing",
       "config_exec": 4.8,
       "config_high": 0.0,
@@ -215,7 +215,7 @@
       "current_price": 209.77,
       "daily": {
         "rsi": 49.6,
-        "vol_spike": 0.68,
+        "vol_spike": 0.71,
         "roc1": -4.19,
         "roc2": -4.01,
         "roc3": -1.92,
@@ -268,7 +268,7 @@
       },
       "weekly": {
         "rsi": 45.4,
-        "vol_spike": 0.75,
+        "vol_spike": 0.87,
         "roc1": -7.39,
         "roc2": -0.28,
         "roc3": -7.11,
@@ -307,7 +307,7 @@
       },
       "monthly_budget": 750,
       "auto_high_52w": 258.6,
-      "current_pe": 29.22,
+      "current_pe": 29.26,
       "pe_type": "Trailing",
       "config_exec": 7.0,
       "config_high": 0.0,
@@ -319,7 +319,7 @@
       "current_price": 148.46,
       "daily": {
         "rsi": 49.5,
-        "vol_spike": 0.69,
+        "vol_spike": 0.7,
         "roc1": -2.76,
         "roc2": -11.31,
         "roc3": -4.44,
@@ -372,7 +372,7 @@
       },
       "weekly": {
         "rsi": 46.9,
-        "vol_spike": 0.64,
+        "vol_spike": 0.76,
         "roc1": -11.56,
         "roc2": 1.98,
         "roc3": -8.11,
@@ -411,7 +411,7 @@
       },
       "monthly_budget": 1000,
       "auto_high_52w": 207.52,
-      "current_pe": 235.65,
+      "current_pe": 239.45,
       "pe_type": "Trailing",
       "config_exec": 13.0,
       "config_high": 0.0,
@@ -423,7 +423,7 @@
       "current_price": 360.59,
       "daily": {
         "rsi": 38.9,
-        "vol_spike": 1.21,
+        "vol_spike": 1.31,
         "roc1": -11.09,
         "roc2": -2.16,
         "roc3": -0.86,
@@ -476,7 +476,7 @@
       },
       "weekly": {
         "rsi": 38.2,
-        "vol_spike": 0.95,
+        "vol_spike": 1.23,
         "roc1": -17.69,
         "roc2": -4.88,
         "roc3": 3.64,
@@ -515,7 +515,7 @@
       },
       "monthly_budget": 750,
       "auto_high_52w": 498.83,
-      "current_pe": 337.0,
+      "current_pe": 333.88,
       "pe_type": "Trailing",
       "config_exec": 2.4,
       "config_high": 0.0,
@@ -580,7 +580,7 @@
       },
       "weekly": {
         "rsi": 33.0,
-        "vol_spike": 0.5,
+        "vol_spike": 0.61,
         "roc1": -25.46,
         "roc2": -1.61,
         "roc3": -10.37,
@@ -684,7 +684,7 @@
       },
       "weekly": {
         "rsi": 36.8,
-        "vol_spike": 0.79,
+        "vol_spike": 0.97,
         "roc1": -33.72,
         "roc2": 0.95,
         "roc3": -5.17,
@@ -791,7 +791,7 @@
       1.917,
       3.711,
       4.143,
-      2.188
+      2.24
     ],
     "bil_hist": [
       0.795,
@@ -853,7 +853,7 @@
       1.14,
       1.853,
       2.02,
-      0.932
+      1.046
     ],
     "combined_hist": [
       2.195,
@@ -915,7 +915,7 @@
       3.058,
       5.564,
       6.162,
-      3.12
+      3.287
     ]
   }
 }
