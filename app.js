@@ -85,11 +85,15 @@ function saveOverride(symbol, field, value) {
     let overrides = JSON.parse(localStorage.getItem('portfolio_overrides') || '{}');
     if (!overrides[symbol]) overrides[symbol] = {};
     
-    const parsed = parseFloat(value);
-    if (isNaN(parsed)) {
-        delete overrides[symbol][field];
+    if (field === 'start_date') {
+        overrides[symbol][field] = value;
     } else {
-        overrides[symbol][field] = parsed;
+        const parsed = parseFloat(value);
+        if (isNaN(parsed)) {
+            delete overrides[symbol][field];
+        } else {
+            overrides[symbol][field] = parsed;
+        }
     }
     
     localStorage.setItem('portfolio_overrides', JSON.stringify(overrides));
@@ -118,7 +122,6 @@ function generateParkingSparkline(data) {
     const stepX = width / (len > 1 ? len - 1 : 1);
     
     const getY = (val) => padding + (height - 2 * padding) * (1 - (val - min) / range);
-    // 🚨 추가: 실제 최고점의 Y 좌표를 정밀하게 산출
     const maxY = getY(max);
     
     let pathSgov = '', pathBil = '', pathComb = '';
@@ -193,6 +196,7 @@ function renderCards() {
         const symbol = asset.symbol;
         
         const initialBudget = getOverride(symbol, 'monthly_budget', asset.monthly_budget ?? 0);
+        const initialStart = getOverride(symbol, 'start_date', asset.config_start_date || "2026-01"); 
         const initialExec = getOverride(symbol, 'executed_months', asset.config_exec ?? 0);
         const initialHigh = getOverride(symbol, 'high_52w', asset.config_high ?? 0);
         const initialPe = getOverride(symbol, 'avg_pe_3y', asset.config_pe ?? 0);
@@ -227,12 +231,18 @@ function renderCards() {
                         oninput="recalculateCard('${symbol}', 'monthly_budget', this.value)">
                 </div>
                 <div class="flex justify-between items-center">
+                    <label class="text-gray-400">투자 시작월 (기준)</label>
+                    <input type="month" value="${initialStart}" id="start-${symbol}"
+                        class="control-input bg-gray-700 text-purple-400 border border-gray-600 rounded px-3 py-1 text-right w-32 font-bold"
+                        oninput="recalculateCard('${symbol}', 'start_date', this.value)">
+                </div>
+                <div class="flex justify-between items-center border-b border-gray-700 pb-3 mb-3">
                     <label class="text-gray-400">기집행 달수 (개월)</label>
                     <input type="number" step="0.1" value="${initialExec}" id="exec-${symbol}"
                         class="control-input bg-gray-700 text-cyan-400 border border-gray-600 rounded px-3 py-1 text-right w-28 font-bold"
                         oninput="recalculateCard('${symbol}', 'executed_months', this.value)">
                 </div>
-                <div class="flex justify-between items-center border-t border-gray-700 pt-3">
+                <div class="flex justify-between items-center">
                     <label class="text-gray-400">52주 고점 (0=자동)</label>
                     <input type="number" step="0.1" value="${initialHigh}" id="high-${symbol}"
                         class="control-input bg-gray-700 text-cyan-400 border border-gray-600 rounded px-3 py-1 text-right w-28 font-bold"
@@ -249,7 +259,7 @@ function renderCards() {
                 ` : ''}
             </div>
 
-            <div id="${orderId}" class="bg-gray-900 border border-gray-700 rounded-lg p-4 mb-6 flex items-center justify-between">
+            <div id="${orderId}">
             </div>
 
             <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 mt-auto">
@@ -272,11 +282,13 @@ function recalculateCard(symbol, field, newValue) {
     }
     
     const budgetEl = document.getElementById(`budget-${symbol}`);
+    const startEl = document.getElementById(`start-${symbol}`); 
     const execEl = document.getElementById(`exec-${symbol}`);
     const highEl = document.getElementById(`high-${symbol}`);
     const peEl = document.getElementById(`pe-${symbol}`);
     
     const monthlyBudget = budgetEl ? parseFloat(budgetEl.value) || 0 : 0;
+    const startDateVal = startEl ? startEl.value : "2026-01"; 
     const executedMonths = execEl ? parseFloat(execEl.value) || 0 : 0;
     const manualHigh = highEl ? parseFloat(highEl.value) || 0 : 0;
     const avgPe = peEl ? parseFloat(peEl.value) || 0 : 0;
@@ -312,30 +324,74 @@ function recalculateCard(symbol, field, newValue) {
     const alloc = getAllocationInfo(symbol, effectiveDd);
     const targetMonths = alloc.months;
     
+    // 🚨 1. 타임 엔진 연산 (경과 달수 도출)
+    let elapsedMonths = 1;
+    if (startDateVal) {
+        const [sYear, sMonth] = startDateVal.split('-').map(Number);
+        const now = new Date();
+        const cYear = now.getFullYear();
+        const cMonth = now.getMonth() + 1;
+        elapsedMonths = (cYear - sYear) * 12 + (cMonth - sMonth) + 1;
+    }
+    
+    // 🚨 2. [이슈 1 픽스] 미래 시작일 대응 (조기 렌더링 종료)
+    if (elapsedMonths < 1) {
+        orderEl.className = 'bg-gray-900 border border-gray-700/50 rounded-lg p-4 mb-6 flex items-center justify-between text-gray-500';
+        orderEl.innerHTML = `
+            <div>
+                <div class="text-xs text-gray-500 font-mono">최종 주문</div>
+                <div class="text-2xl font-black tracking-tighter">$0</div>
+            </div>
+            <div class="text-right">
+                <div class="text-xs text-gray-500 font-mono">시작월: ${startDateVal}</div>
+                <span class="px-2 py-0.5 rounded text-xs font-bold bg-gray-800 border border-gray-600">투자기간 미도래 (대기)</span>
+            </div>
+        `;
+        return; 
+    }
+    
+    // 🚨 3. [이슈 2 픽스] 궁극의 목표치 (Ultimate Target) 산출
+    // MDD 목표치와 일상 DCA(시간 경과) 중 더 큰 값을 진짜 목표로 삼아 모순 해결
+    const ultimateTarget = Math.max(targetMonths, elapsedMonths);
+    const aheadMonths = executedMonths - elapsedMonths;
     let buyMonths = 0;
-    if (targetMonths === 0) {
-        buyMonths = 0; 
-    } else if (executedMonths > 0) {
-        buyMonths = Math.max(targetMonths - executedMonths, 0);
-    } else {
-        buyMonths = targetMonths; 
+    
+    if (ultimateTarget > executedMonths) {
+        buyMonths = ultimateTarget - executedMonths;
     }
     
     const finalOrder = buyMonths * monthlyBudget;
     
-    if (finalOrder > 0) {
-        orderEl.className = 'bg-gray-900 border border-green-700/50 rounded-lg p-4 mb-6 flex items-center justify-between text-green-400';
+    // 🚨 상태별 동적 UI 렌더링
+    if (buyMonths > 0 && targetMonths > elapsedMonths) {
+        // [MDD 타격 모드 - 보라색] MDD 목표가 일상 DCA 목표를 초과할 때만 보라색 발동
+        orderEl.className = 'bg-gray-900 border border-purple-700/50 rounded-lg p-4 mb-6 flex items-center justify-between text-purple-400';
         orderEl.innerHTML = `
             <div>
-                <div class="text-xs text-gray-500 font-mono">최종 주문 (실시간)</div>
+                <div class="text-xs text-gray-500 font-mono">기회 포착 (MDD 타격)</div>
                 <div class="text-2xl font-black tracking-tighter">${USD_ORDER.format(Math.round(finalOrder))}</div>
             </div>
             <div class="text-right">
-                <div class="text-xs text-gray-500 font-mono">목표: ${targetMonths}M | 기집행: ${executedMonths}M</div>
-                <span class="px-2 py-0.5 rounded text-xs font-bold bg-green-900 border border-green-700">+ ${buyMonths.toFixed(1)}개월 치 매수</span>
+                <div class="text-xs text-gray-500 font-mono">MDD 목표: ${targetMonths}M | 기집행: ${executedMonths}M</div>
+                <span class="px-2 py-0.5 rounded text-xs font-bold bg-purple-900 border border-purple-700">+ ${buyMonths.toFixed(1)}개월 치 땡겨사기</span>
             </div>
         `;
-    } else if (targetMonths === 0) {
+    } else if (buyMonths > 0) {
+        // [일상 DCA 모드 - 파란색]
+        orderEl.className = 'bg-gray-900 border border-blue-700/50 rounded-lg p-4 mb-6 flex items-center justify-between text-blue-400';
+        orderEl.innerHTML = `
+            <div>
+                <div class="text-xs text-gray-500 font-mono">일상 DCA (정상 궤도)</div>
+                <div class="text-2xl font-black tracking-tighter">${USD_ORDER.format(Math.round(finalOrder))}</div>
+            </div>
+            <div class="text-right">
+                <div class="text-xs text-gray-500 font-mono">경과: ${elapsedMonths}M | 기집행: ${executedMonths}M</div>
+                <span class="px-2 py-0.5 rounded text-xs font-bold bg-blue-900 border border-blue-700">+ ${buyMonths.toFixed(1)}개월 치 매수</span>
+            </div>
+        `;
+    } else {
+        // [휴식/Lockdown 모드 - 회색]
+        const aheadStr = aheadMonths > 0 ? `${aheadMonths.toFixed(1)}개월 선취매 완료` : `이번 달 DCA 완료`;
         orderEl.className = 'bg-gray-900 border border-gray-700/50 rounded-lg p-4 mb-6 flex items-center justify-between text-gray-400';
         orderEl.innerHTML = `
             <div>
@@ -343,20 +399,8 @@ function recalculateCard(symbol, field, newValue) {
                 <div class="text-2xl font-black tracking-tighter">$0</div>
             </div>
             <div class="text-right">
-                <div class="text-xs text-gray-500 font-mono">MDD 타격 대기 중</div>
-                <span class="px-2 py-0.5 rounded text-xs font-bold bg-gray-800 border border-gray-600">일상 DCA 유지</span>
-            </div>
-        `;
-    } else {
-        orderEl.className = 'bg-gray-900 border border-red-700/50 rounded-lg p-4 mb-6 flex items-center justify-between text-red-400';
-        orderEl.innerHTML = `
-            <div>
-                <div class="text-xs text-gray-500 font-mono">최종 주문</div>
-                <div class="text-2xl font-black tracking-tighter">구매 중단</div>
-            </div>
-            <div class="text-right">
-                <div class="text-xs text-gray-500 font-mono">목표: ${targetMonths}M | 기집행: ${executedMonths}M</div>
-                <span class="px-2 py-0.5 rounded text-xs font-bold bg-red-900 border border-red-700">휴식 (Lockdown)</span>
+                <div class="text-xs text-gray-500 font-mono">경과: ${elapsedMonths}M | 기집행: ${executedMonths}M</div>
+                <span class="px-2 py-0.5 rounded text-xs font-bold bg-gray-800 border border-gray-600">${aheadStr} (휴식)</span>
             </div>
         `;
     }

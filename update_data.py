@@ -129,7 +129,8 @@ def main():
                     "pe_type": pe_type,
                     "config_exec": asset.get('executed_months', 0.0),
                     "config_high": asset.get('high_52w', 0.0),
-                    "config_pe": asset.get('avg_pe_3y', 0.0)
+                    "config_pe": asset.get('avg_pe_3y', 0.0),
+                    "config_start_date": asset.get('start_date', "2026-01") # 🚨 타임 엔진을 위한 시작일 데이터 파이프라인 개통
                 })
                 print(f"[{symbol}] 스캔 완료")
             else:

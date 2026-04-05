@@ -5,45 +5,52 @@
       "group": "A",
       "monthly_budget": 1000,
       "executed_months": 22.0,
-      "avg_pe_3y": 33.67
+      "avg_pe_3y": 33.67,
+      "start_date": "2026-01"
     },
     {
       "symbol": "AAPL",
       "group": "A",
       "monthly_budget": 750,
       "executed_months": 4.8,
-      "avg_pe_3y": 33.00
+      "avg_pe_3y": 33.00,
+      "start_date": "2026-01"
     },
     {
       "symbol": "AMZN",
       "group": "A",
       "monthly_budget": 750,
       "executed_months": 7.0,
-      "avg_pe_3y": 64.10
+      "avg_pe_3y": 64.10,
+      "start_date": "2026-01"
     },
     {
       "symbol": "PLTR",
       "group": "B",
       "monthly_budget": 1000,
-      "executed_months": 13.0
+      "executed_months": 13.0,
+      "start_date": "2026-01"
     },
     {
       "symbol": "TSLA",
       "group": "B",
       "monthly_budget": 750,
-      "executed_months": 2.4
+      "executed_months": 2.4,
+      "start_date": "2026-01"
     },
     {
       "symbol": "IBIT",
       "group": "C",
       "monthly_budget": 750,
-      "executed_months": 13.1
+      "executed_months": 13.1,
+      "start_date": "2026-01"
     },
     {
       "symbol": "ETHA",
       "group": "C",
       "monthly_budget": 500,
-      "executed_months": 16.0
+      "executed_months": 16.0,
+      "start_date": "2026-01"
     }
   ]
 }
