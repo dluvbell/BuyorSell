@@ -36,7 +36,7 @@ const MDD_TABLES = {
 };
 
 const ASSET_TABLE_MAP = {
-    'MSFT': 'tech_giants', 'AAPL': 'tech_giants', 
+    'MSFT': 'tech_giants', 
     'AMZN': 'amzn',
     'PLTR': 'growth', 'TSLA': 'growth',
     'IBIT': 'ibit_etha', 'ETHA': 'ibit_etha',
@@ -324,7 +324,6 @@ function recalculateCard(symbol, field, newValue) {
     const alloc = getAllocationInfo(symbol, effectiveDd);
     const targetMonths = alloc.months;
     
-    // 🚨 1. 타임 엔진 연산 (경과 달수 도출)
     let elapsedMonths = 1;
     if (startDateVal) {
         const [sYear, sMonth] = startDateVal.split('-').map(Number);
@@ -334,7 +333,6 @@ function recalculateCard(symbol, field, newValue) {
         elapsedMonths = (cYear - sYear) * 12 + (cMonth - sMonth) + 1;
     }
     
-    // 🚨 2. [이슈 1 픽스] 미래 시작일 대응 (조기 렌더링 종료)
     if (elapsedMonths < 1) {
         orderEl.className = 'bg-gray-900 border border-gray-700/50 rounded-lg p-4 mb-6 flex items-center justify-between text-gray-500';
         orderEl.innerHTML = `
@@ -350,8 +348,6 @@ function recalculateCard(symbol, field, newValue) {
         return; 
     }
     
-    // 🚨 3. [이슈 2 픽스] 궁극의 목표치 (Ultimate Target) 산출
-    // MDD 목표치와 일상 DCA(시간 경과) 중 더 큰 값을 진짜 목표로 삼아 모순 해결
     const ultimateTarget = Math.max(targetMonths, elapsedMonths);
     const aheadMonths = executedMonths - elapsedMonths;
     let buyMonths = 0;
@@ -362,9 +358,7 @@ function recalculateCard(symbol, field, newValue) {
     
     const finalOrder = buyMonths * monthlyBudget;
     
-    // 🚨 상태별 동적 UI 렌더링
     if (buyMonths > 0 && targetMonths > elapsedMonths) {
-        // [MDD 타격 모드 - 보라색] MDD 목표가 일상 DCA 목표를 초과할 때만 보라색 발동
         orderEl.className = 'bg-gray-900 border border-purple-700/50 rounded-lg p-4 mb-6 flex items-center justify-between text-purple-400';
         orderEl.innerHTML = `
             <div>
@@ -377,7 +371,6 @@ function recalculateCard(symbol, field, newValue) {
             </div>
         `;
     } else if (buyMonths > 0) {
-        // [일상 DCA 모드 - 파란색]
         orderEl.className = 'bg-gray-900 border border-blue-700/50 rounded-lg p-4 mb-6 flex items-center justify-between text-blue-400';
         orderEl.innerHTML = `
             <div>
@@ -390,7 +383,6 @@ function recalculateCard(symbol, field, newValue) {
             </div>
         `;
     } else {
-        // [휴식/Lockdown 모드 - 회색]
         const aheadStr = aheadMonths > 0 ? `${aheadMonths.toFixed(1)}개월 선취매 완료` : `이번 달 DCA 완료`;
         orderEl.className = 'bg-gray-900 border border-gray-700/50 rounded-lg p-4 mb-6 flex items-center justify-between text-gray-400';
         orderEl.innerHTML = `
