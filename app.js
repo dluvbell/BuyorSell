@@ -47,13 +47,37 @@ function calculatePerAdjustment(currentPe, avgPe) {
     if (!currentPe || !avgPe) return { discountRate: 0, bonus: 0 };
     const discountRate = ((currentPe - avgPe) / avgPe) * 100;
     let bonus = 0;
-    if (discountRate > 25) bonus = -15;
+    
+    // 🚨 고평가 (Premium) 페널티 - 90% 한계선까지 완벽한 대칭 확장
+    if (discountRate > 85) bonus = -55; // 85% 초과 (90% 초과 포함 상한 캡 고정)
+    else if (discountRate > 80) bonus = -50;
+    else if (discountRate > 75) bonus = -45;
+    else if (discountRate > 70) bonus = -40;
+    else if (discountRate > 65) bonus = -35;
+    else if (discountRate > 55) bonus = -30;
+    else if (discountRate > 45) bonus = -25;
+    else if (discountRate > 35) bonus = -20;
+    else if (discountRate > 25) bonus = -15;
     else if (discountRate > 15) bonus = -10;
     else if (discountRate > 5) bonus = -5;
+    
+    // 정상 궤도
     else if (discountRate >= -5) bonus = 0;
+    
+    // 저평가 (Discount) 보너스 - 90% 한계선까지 선형/정밀 구간 확장
     else if (discountRate >= -15) bonus = 5;
     else if (discountRate >= -25) bonus = 10;
-    else bonus = 15;
+    else if (discountRate >= -35) bonus = 15;
+    else if (discountRate >= -45) bonus = 20;
+    else if (discountRate >= -55) bonus = 25;
+    else if (discountRate >= -65) bonus = 30; // 10% 단위 구간 끝
+    else if (discountRate >= -70) bonus = 35; // 5% 단위 정밀 구간 시작
+    else if (discountRate >= -75) bonus = 40;
+    else if (discountRate >= -80) bonus = 45;
+    else if (discountRate >= -85) bonus = 50;
+    else if (discountRate >= -90) bonus = 55;
+    else bonus = 55; // -90% 초과 극한 구간 상한 캡 고정
+    
     return { discountRate: discountRate, bonus: bonus };
 }
 
