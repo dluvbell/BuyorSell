@@ -110,7 +110,11 @@ function saveOverride(symbol, field, value) {
     if (!overrides[symbol]) overrides[symbol] = {};
     
     if (field === 'start_date') {
-        overrides[symbol][field] = value;
+        if (value && value.trim() !== '') {
+            overrides[symbol][field] = value;
+        } else {
+            delete overrides[symbol][field];
+        }
     } else {
         const parsed = parseFloat(value);
         if (isNaN(parsed)) {
@@ -142,7 +146,7 @@ function generateParkingSparkline(data) {
     if (min === max) { min -= 1; max += 1; }
     
     const range = max - min;
-    const len = data.combined_hist.length;
+    const len = Math.min(data.combined_hist.length, data.sgov_hist.length, data.bil_hist.length);
     const stepX = width / (len > 1 ? len - 1 : 1);
     
     const getY = (val) => padding + (height - 2 * padding) * (1 - (val - min) / range);
@@ -220,7 +224,8 @@ function renderCards() {
         const symbol = asset.symbol;
         
         const initialBudget = getOverride(symbol, 'monthly_budget', asset.monthly_budget ?? 0);
-        const initialStart = getOverride(symbol, 'start_date', asset.config_start_date || "2026-01"); 
+        let initialStart = getOverride(symbol, 'start_date', asset.config_start_date || "2026-01-24"); 
+        if (initialStart.length === 7) { initialStart += "-24"; }
         const initialExec = getOverride(symbol, 'executed_months', asset.config_exec ?? 0);
         const initialHigh = getOverride(symbol, 'high_52w', asset.config_high ?? 0);
         const initialPe = getOverride(symbol, 'avg_pe_3y', asset.config_pe ?? 0);
@@ -243,7 +248,7 @@ function renderCards() {
                 </div>
                 <div class="text-right flex flex-col items-end gap-2">
                     <span id="${discId}" class="text-xs font-mono px-2 py-1 rounded bg-gray-900 border border-gray-700">디스카운트: 연산중</span>
-                    <span id="${effId}" class="text-2xl font-black tracking-tight text-white neutralize">연산중</span>
+                    <span id="${effId}" class="text-2xl font-black tracking-tight text-white">연산중</span>
                 </div>
             </div>
 
@@ -255,9 +260,9 @@ function renderCards() {
                         oninput="recalculateCard('${symbol}', 'monthly_budget', this.value)">
                 </div>
                 <div class="flex justify-between items-center">
-                    <label class="text-gray-400">투자 시작월 (기준)</label>
-                    <input type="month" value="${initialStart}" id="start-${symbol}"
-                        class="control-input bg-gray-700 text-purple-400 border border-gray-600 rounded px-3 py-1 text-right w-32 font-bold"
+                    <label class="text-gray-400">투자 시작일 (기준)</label>
+                    <input type="date" value="${initialStart}" id="start-${symbol}"
+                        class="control-input bg-gray-700 text-purple-400 border border-gray-600 rounded px-3 py-1 text-right w-36 font-bold"
                         oninput="recalculateCard('${symbol}', 'start_date', this.value)">
                 </div>
                 <div class="flex justify-between items-center border-b border-gray-700 pb-3 mb-3">
@@ -312,7 +317,7 @@ function recalculateCard(symbol, field, newValue) {
     const peEl = document.getElementById(`pe-${symbol}`);
     
     const monthlyBudget = budgetEl ? parseFloat(budgetEl.value) || 0 : 0;
-    const startDateVal = startEl ? startEl.value : "2026-01"; 
+    const startDateVal = startEl ? startEl.value : "2026-01-24"; 
     const executedMonths = execEl ? parseFloat(execEl.value) || 0 : 0;
     const manualHigh = highEl ? parseFloat(highEl.value) || 0 : 0;
     const avgPe = peEl ? parseFloat(peEl.value) || 0 : 0;
@@ -350,12 +355,21 @@ function recalculateCard(symbol, field, newValue) {
     
     let elapsedMonths = 1;
     if (startDateVal) {
-        const [sYear, sMonth] = startDateVal.split('-').map(Number);
-        const now = new Date();
-        const cYear = now.getFullYear();
-        const cMonth = now.getMonth() + 1;
-        elapsedMonths = (cYear - sYear) * 12 + (cMonth - sMonth) + 1;
+        const parts = startDateVal.split('-').map(Number);
+        if(parts.length >= 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+            const sYear = parts[0];
+            const sMonth = parts[1] - 1; // JS 0-11
+            const sDate = parts.length > 2 ? parts[2] : 1;
+            
+            const now = new Date();
+            elapsedMonths = (now.getFullYear() - sYear) * 12 + (now.getMonth() - sMonth);
+            
+            if (now.getDate() >= sDate) {
+                elapsedMonths += 1;
+            }
+        }
     }
+    elapsedMonths = Math.max(elapsedMonths, 1);
     
     if (elapsedMonths < 1) {
         orderEl.className = 'bg-gray-900 border border-gray-700/50 rounded-lg p-4 mb-6 flex items-center justify-between text-gray-500';
@@ -365,49 +379,62 @@ function recalculateCard(symbol, field, newValue) {
                 <div class="text-2xl font-black tracking-tighter">$0</div>
             </div>
             <div class="text-right">
-                <div class="text-xs text-gray-500 font-mono">시작월: ${startDateVal}</div>
+                <div class="text-xs text-gray-500 font-mono">시작일: ${startDateVal}</div>
                 <span class="px-2 py-0.5 rounded text-xs font-bold bg-gray-800 border border-gray-600">투자기간 미도래 (대기)</span>
             </div>
         `;
         return; 
     }
     
-    const ultimateTarget = Math.max(targetMonths, elapsedMonths);
     const aheadMonths = executedMonths - elapsedMonths;
-    let buyMonths = 0;
-    
-    if (ultimateTarget > executedMonths) {
-        buyMonths = ultimateTarget - executedMonths;
+    const MAX_MONTHS = 36.0;
+    let finalOrder = 0;
+    let orderType = '';
+    let buyMonthsStr = '';
+
+    if (targetMonths > executedMonths) {
+        const sniperMonths = targetMonths - executedMonths;
+        finalOrder = Math.round(sniperMonths * monthlyBudget); // 반올림 적용
+        orderType = 'sniper';
+        buyMonthsStr = `+ ${sniperMonths.toFixed(1)}개월 치 땡겨사기`;
+    } else if (executedMonths >= MAX_MONTHS) {
+        finalOrder = 0;
+        orderType = 'maxed';
+    } else {
+        const remMonths = Math.max(MAX_MONTHS - elapsedMonths, 0.0001);
+        const remBullets = Math.max(MAX_MONTHS - executedMonths, 0);
+        const valve = Math.min(1.0, remBullets / remMonths);
+        finalOrder = Math.round(valve * monthlyBudget); // 반올림 적용
+        orderType = 'dynamic';
+        buyMonthsStr = `+ ${(valve * 100).toFixed(1)}% 밸브 개방`;
     }
     
-    const finalOrder = buyMonths * monthlyBudget;
-    
-    if (buyMonths > 0 && targetMonths > elapsedMonths) {
+    if (orderType === 'sniper') {
         orderEl.className = 'bg-gray-900 border border-purple-700/50 rounded-lg p-4 mb-6 flex items-center justify-between text-purple-400';
         orderEl.innerHTML = `
             <div>
                 <div class="text-xs text-gray-500 font-mono">기회 포착 (MDD 타격)</div>
-                <div class="text-2xl font-black tracking-tighter">${USD_ORDER.format(Math.round(finalOrder))}</div>
+                <div class="text-2xl font-black tracking-tighter">${USD_ORDER.format(finalOrder)}</div>
             </div>
             <div class="text-right">
-                <div class="text-xs text-gray-500 font-mono">MDD 목표: ${targetMonths}M | 기집행: ${executedMonths}M</div>
-                <span class="px-2 py-0.5 rounded text-xs font-bold bg-purple-900 border border-purple-700">+ ${buyMonths.toFixed(1)}개월 치 땡겨사기</span>
+                <div class="text-xs text-gray-500 font-mono">MDD 목표: ${targetMonths}M | 기집행: ${executedMonths.toFixed(1)}M</div>
+                <span class="px-2 py-0.5 rounded text-xs font-bold bg-purple-900 border border-purple-700">${buyMonthsStr}</span>
             </div>
         `;
-    } else if (buyMonths > 0) {
+    } else if (orderType === 'dynamic') {
         orderEl.className = 'bg-gray-900 border border-blue-700/50 rounded-lg p-4 mb-6 flex items-center justify-between text-blue-400';
         orderEl.innerHTML = `
             <div>
                 <div class="text-xs text-gray-500 font-mono">일상 DCA (정상 궤도)</div>
-                <div class="text-2xl font-black tracking-tighter">${USD_ORDER.format(Math.round(finalOrder))}</div>
+                <div class="text-2xl font-black tracking-tighter">${USD_ORDER.format(finalOrder)}</div>
             </div>
             <div class="text-right">
-                <div class="text-xs text-gray-500 font-mono">경과: ${elapsedMonths}M | 기집행: ${executedMonths}M</div>
-                <span class="px-2 py-0.5 rounded text-xs font-bold bg-blue-900 border border-blue-700">+ ${buyMonths.toFixed(1)}개월 치 매수</span>
+                <div class="text-xs text-gray-500 font-mono">경과: ${elapsedMonths}M | 기집행: ${executedMonths.toFixed(1)}M</div>
+                <span class="px-2 py-0.5 rounded text-xs font-bold bg-blue-900 border border-blue-700">${buyMonthsStr}</span>
             </div>
         `;
     } else {
-        const aheadStr = aheadMonths > 0 ? `${aheadMonths.toFixed(1)}개월 선취매 완료` : `이번 달 DCA 완료`;
+        const aheadStr = aheadMonths > 0 ? `${aheadMonths.toFixed(1)}개월 선취매 완료` : `총알 소진 완료`;
         orderEl.className = 'bg-gray-900 border border-gray-700/50 rounded-lg p-4 mb-6 flex items-center justify-between text-gray-400';
         orderEl.innerHTML = `
             <div>
@@ -415,7 +442,7 @@ function recalculateCard(symbol, field, newValue) {
                 <div class="text-2xl font-black tracking-tighter">$0</div>
             </div>
             <div class="text-right">
-                <div class="text-xs text-gray-500 font-mono">경과: ${elapsedMonths}M | 기집행: ${executedMonths}M</div>
+                <div class="text-xs text-gray-500 font-mono">경과: ${elapsedMonths}M | 기집행: ${executedMonths.toFixed(1)}M</div>
                 <span class="px-2 py-0.5 rounded text-xs font-bold bg-gray-800 border border-gray-600">${aheadStr} (휴식)</span>
             </div>
         `;
