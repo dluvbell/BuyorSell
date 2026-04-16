@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-04-16 20:05:35 UTC",
+  "last_updated": "2026-04-16 21:01:45 UTC",
   "assets": [
     {
       "symbol": "MSFT",
@@ -7,7 +7,7 @@
       "current_price": 420.26,
       "daily": {
         "rsi": 70.8,
-        "vol_spike": 1.16,
+        "vol_spike": 1.2,
         "roc1": 7.27,
         "roc2": 15.12,
         "roc3": 14.14,
@@ -60,7 +60,7 @@
       },
       "weekly": {
         "rsi": 47.7,
-        "vol_spike": 0.89,
+        "vol_spike": 0.9,
         "roc1": -8.4,
         "roc2": 12.83,
         "roc3": 18.36,
@@ -112,7 +112,7 @@
       "current_price": 249.7,
       "daily": {
         "rsi": 76.2,
-        "vol_spike": 0.86,
+        "vol_spike": 0.9,
         "roc1": 18.98,
         "roc2": 9.1,
         "roc3": -3.65,
@@ -165,7 +165,7 @@
       },
       "weekly": {
         "rsi": 62.0,
-        "vol_spike": 0.82,
+        "vol_spike": 0.83,
         "roc1": 4.42,
         "roc2": 14.09,
         "roc3": 18.97,
@@ -322,7 +322,7 @@
       "current_price": 388.9,
       "daily": {
         "rsi": 56.2,
-        "vol_spike": 0.91,
+        "vol_spike": 0.92,
         "roc1": -0.99,
         "roc2": 14.26,
         "roc3": 23.44,
@@ -375,7 +375,7 @@
       },
       "weekly": {
         "rsi": 48.0,
-        "vol_spike": 0.98,
+        "vol_spike": 0.99,
         "roc1": -11.11,
         "roc2": 12.42,
         "roc3": 41.26,
