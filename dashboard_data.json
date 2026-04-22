@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-04-22 20:13:16 UTC",
+  "last_updated": "2026-04-22 21:33:30 UTC",
   "assets": [
     {
       "symbol": "MSFT",
@@ -112,7 +112,7 @@
       "current_price": 255.36,
       "daily": {
         "rsi": 76.8,
-        "vol_spike": 0.76,
+        "vol_spike": 0.78,
         "roc1": 23.22,
         "roc2": 7.75,
         "roc3": -4.5,
@@ -165,7 +165,7 @@
       },
       "weekly": {
         "rsi": 63.7,
-        "vol_spike": 0.48,
+        "vol_spike": 0.49,
         "roc1": 6.77,
         "roc2": 21.04,
         "roc3": 25.36,
@@ -217,7 +217,7 @@
       "current_price": 152.62,
       "daily": {
         "rsi": 57.8,
-        "vol_spike": 0.86,
+        "vol_spike": 0.89,
         "roc1": -1.4,
         "roc2": 6.94,
         "roc3": 8.41,
@@ -270,7 +270,7 @@
       },
       "weekly": {
         "rsi": 49.9,
-        "vol_spike": 0.48,
+        "vol_spike": 0.49,
         "roc1": -10.01,
         "roc2": 14.18,
         "roc3": 19.81,
@@ -322,7 +322,7 @@
       "current_price": 387.51,
       "daily": {
         "rsi": 54.0,
-        "vol_spike": 0.7,
+        "vol_spike": 0.79,
         "roc1": 1.17,
         "roc2": 3.0,
         "roc3": -9.19,
@@ -375,7 +375,7 @@
       },
       "weekly": {
         "rsi": 47.7,
-        "vol_spike": 0.55,
+        "vol_spike": 0.57,
         "roc1": -13.71,
         "roc2": 10.15,
         "roc3": 27.58,
@@ -427,7 +427,7 @@
       "current_price": 44.75,
       "daily": {
         "rsi": 65.6,
-        "vol_spike": 1.12,
+        "vol_spike": 1.13,
         "roc1": 13.93,
         "roc2": 13.24,
         "roc3": 14.34,
@@ -693,7 +693,7 @@
       2.078,
       1.932,
       1.409,
-      1.459
+      1.481
     ],
     "bil_hist": [
       0.743,
@@ -817,7 +817,7 @@
       3.323,
       2.661,
       2.158,
-      2.215
+      2.237
     ]
   }
 }
