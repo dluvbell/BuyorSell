@@ -9,11 +9,11 @@ const MDD_TABLES = {
         { tier: -30.0, months: 14, str: '14개월 치' }, { tier: -25.0, months: 10, str: '10개월 치' }, { tier: -20.0, months: 6, str: '6개월 치' },
         { tier: -15.0, months: 3, str: '3개월 치' }
     ],
-    'amzn': [
-        { tier: -65.0, months: 36, str: '36개월 (Max)' }, { tier: -60.0, months: 33, str: '33개월 치' }, { tier: -55.0, months: 30, str: '30개월 치' },
-        { tier: -50.0, months: 26, str: '26개월 치' }, { tier: -45.0, months: 22, str: '22개월 치' }, { tier: -40.0, months: 18, str: '18개월 치' },
-        { tier: -35.0, months: 14, str: '14개월 치' }, { tier: -30.0, months: 10, str: '10개월 치' }, { tier: -25.0, months: 6, str: '6개월 치' },
-        { tier: -20.0, months: 3, str: '3개월 치' }
+    'covered_call': [
+        { tier: -55.0, months: 36, str: '36개월 (Max)' }, { tier: -50.0, months: 33, str: '33개월 치' }, { tier: -45.0, months: 30, str: '30개월 치' },
+        { tier: -40.0, months: 26, str: '26개월 치' }, { tier: -35.0, months: 22, str: '22개월 치' }, { tier: -30.0, months: 18, str: '18개월 치' },
+        { tier: -25.0, months: 14, str: '14개월 치' }, { tier: -20.0, months: 10, str: '10개월 치' }, { tier: -15.0, months: 6, str: '6개월 치' },
+        { tier: -10.0, months: 3, str: '3개월 치' }
     ],
     'growth': [
         { tier: -75.0, months: 36, str: '36개월 (Max)' }, { tier: -70.0, months: 33, str: '33개월 치' }, { tier: -65.0, months: 30, str: '30개월 치' },
@@ -35,9 +35,10 @@ const MDD_TABLES = {
     ]
 };
 
+// 🚨 사령관님 지시에 따라 MSFT, AMZN 제거 / GPIQ, MGK 추가
 const ASSET_TABLE_MAP = {
-    'MSFT': 'tech_giants', 
-    'AMZN': 'amzn',
+    'GPIQ': 'covered_call', 
+    'MGK': 'tech_giants',
     'PLTR': 'growth', 'TSLA': 'growth',
     'IBIT': 'ibit_etha', 'ETHA': 'ibit_etha',
     'BMNR': 'bmnr'
@@ -109,6 +110,7 @@ function saveOverride(symbol, field, value) {
     let overrides = JSON.parse(localStorage.getItem('portfolio_overrides') || '{}');
     if (!overrides[symbol]) overrides[symbol] = {};
     
+    // 🚨 빈칸 저장 방지 로직 (클로드 피드백 반영)
     if (field === 'start_date') {
         if (value && value.trim() !== '') {
             overrides[symbol][field] = value;
@@ -146,6 +148,7 @@ function generateParkingSparkline(data) {
     if (min === max) { min -= 1; max += 1; }
     
     const range = max - min;
+    // 🚨 배열 길이 불일치 미검증 방어 코드 (클로드 피드백 반영)
     const len = Math.min(data.combined_hist.length, data.sgov_hist.length, data.bil_hist.length);
     const stepX = width / (len > 1 ? len - 1 : 1);
     
@@ -220,12 +223,22 @@ function renderCards() {
     const grid = document.getElementById('crypto-grid');
     grid.innerHTML = '';
     
-    Object.values(gAssetsRawData).forEach(asset => {
-        const symbol = asset.symbol;
+    // 🚨 MSFT, AMZN 제거 및 GPIQ, MGK 추가
+    const requiredTickers = ['GPIQ', 'MGK', 'PLTR', 'TSLA', 'IBIT', 'ETHA'];
+
+    requiredTickers.forEach(symbol => {
+        // 기존 gAssetsRawData에 데이터가 없으면 기본 구조 생성 (API가 업데이트 되기 전 에러 방지)
+        const asset = gAssetsRawData[symbol] || {
+            symbol: symbol,
+            group: symbol === 'PLTR' || symbol === 'TSLA' ? 'B' : (symbol === 'IBIT' || symbol === 'ETHA' ? 'C' : 'A'),
+            current_price: 0,
+            auto_high_52w: 0
+        };
         
         const initialBudget = getOverride(symbol, 'monthly_budget', asset.monthly_budget ?? 0);
-        let initialStart = getOverride(symbol, 'start_date', asset.config_start_date || "2026-01-24"); 
-        if (initialStart.length === 7) { initialStart += "-24"; }
+        // 🚨 1월 24일부터 시작한걸로 고정
+        const initialStart = getOverride(symbol, 'start_date', "2026-01-24"); 
+        
         const initialExec = getOverride(symbol, 'executed_months', asset.config_exec ?? 0);
         const initialHigh = getOverride(symbol, 'high_52w', asset.config_high ?? 0);
         const initialPe = getOverride(symbol, 'avg_pe_3y', asset.config_pe ?? 0);
@@ -248,7 +261,7 @@ function renderCards() {
                 </div>
                 <div class="text-right flex flex-col items-end gap-2">
                     <span id="${discId}" class="text-xs font-mono px-2 py-1 rounded bg-gray-900 border border-gray-700">디스카운트: 연산중</span>
-                    <span id="${effId}" class="text-2xl font-black tracking-tight text-white">연산중</span>
+                    <span id="${effId}" class="text-2xl font-black tracking-tight text-white">연산중</span> <!-- 🚨 neutralize 클래스 삭제 반영 -->
                 </div>
             </div>
 
@@ -303,8 +316,16 @@ function renderCards() {
 }
 
 function recalculateCard(symbol, field, newValue) {
-    const rawData = gAssetsRawData[symbol];
-    if (!rawData) return;
+    let rawData = gAssetsRawData[symbol];
+    if (!rawData) {
+        // 데이터가 아직 로드되지 않았을 경우를 대비한 방어 코드
+        rawData = {
+            symbol: symbol,
+            group: symbol === 'PLTR' || symbol === 'TSLA' ? 'B' : (symbol === 'IBIT' || symbol === 'ETHA' ? 'C' : 'A'),
+            current_price: 0,
+            auto_high_52w: 0
+        };
+    }
     
     if (field && newValue !== undefined) {
         saveOverride(symbol, field, newValue);
@@ -317,6 +338,7 @@ function recalculateCard(symbol, field, newValue) {
     const peEl = document.getElementById(`pe-${symbol}`);
     
     const monthlyBudget = budgetEl ? parseFloat(budgetEl.value) || 0 : 0;
+    // 🚨 1월 24일부터 시작으로 고정
     const startDateVal = startEl ? startEl.value : "2026-01-24"; 
     const executedMonths = execEl ? parseFloat(execEl.value) || 0 : 0;
     const manualHigh = highEl ? parseFloat(highEl.value) || 0 : 0;
@@ -330,7 +352,8 @@ function recalculateCard(symbol, field, newValue) {
     const discEl = document.getElementById(`disc-${symbol}`);
     const orderEl = document.getElementById(`order-${symbol}`);
     
-    const rawMdd = ((currPrice - high52w) / high52w) * 100;
+    // 고점이 0인 경우를 대비한 방어 코드 추가
+    const rawMdd = high52w > 0 ? ((currPrice - high52w) / high52w) * 100 : 0;
     let effectiveDd = rawMdd;
     let bonus = 0;
     
@@ -394,7 +417,7 @@ function recalculateCard(symbol, field, newValue) {
 
     if (targetMonths > executedMonths) {
         const sniperMonths = targetMonths - executedMonths;
-        finalOrder = Math.round(sniperMonths * monthlyBudget); // 반올림 적용
+        finalOrder = Math.round(sniperMonths * monthlyBudget); 
         orderType = 'sniper';
         buyMonthsStr = `+ ${sniperMonths.toFixed(1)}개월 치 땡겨사기`;
     } else if (executedMonths >= MAX_MONTHS) {
@@ -404,7 +427,7 @@ function recalculateCard(symbol, field, newValue) {
         const remMonths = Math.max(MAX_MONTHS - elapsedMonths, 0.0001);
         const remBullets = Math.max(MAX_MONTHS - executedMonths, 0);
         const valve = Math.min(1.0, remBullets / remMonths);
-        finalOrder = Math.round(valve * monthlyBudget); // 반올림 적용
+        finalOrder = Math.round(valve * monthlyBudget); 
         orderType = 'dynamic';
         buyMonthsStr = `+ ${(valve * 100).toFixed(1)}% 밸브 개방`;
     }

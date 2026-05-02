@@ -1,18 +1,16 @@
 {
   "tickers": [
     {
-      "symbol": "MSFT",
+      "symbol": "MGK",
       "group": "A",
       "monthly_budget": 1000,
-      "executed_months": 22.0,
-      "avg_pe_3y": 33.67
+      "executed_months": 0.0
     },
     {
-      "symbol": "AMZN",
+      "symbol": "GPIQ",
       "group": "A",
       "monthly_budget": 750,
-      "executed_months": 7.0,
-      "avg_pe_3y": 64.10
+      "executed_months": 0.0
     },
     {
       "symbol": "PLTR",
