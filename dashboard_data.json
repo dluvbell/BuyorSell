@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-06-17 20:37:55 UTC",
+  "last_updated": "2026-06-17 22:24:34 UTC",
   "assets": [
     {
       "symbol": "MGK",
@@ -112,7 +112,7 @@
       "current_price": 58.21,
       "daily": {
         "rsi": 54.6,
-        "vol_spike": 0.7,
+        "vol_spike": 0.71,
         "roc1": 2.95,
         "roc2": 4.53,
         "roc3": 13.53,
@@ -427,7 +427,7 @@
       "current_price": 36.36,
       "daily": {
         "rsi": 37.6,
-        "vol_spike": 0.84,
+        "vol_spike": 0.85,
         "roc1": -16.41,
         "roc2": 6.99,
         "roc3": 10.35,
@@ -532,7 +532,7 @@
       "current_price": 13.07,
       "daily": {
         "rsi": 38.4,
-        "vol_spike": 0.92,
+        "vol_spike": 0.93,
         "roc1": -17.95,
         "roc2": 10.82,
         "roc3": 15.45,
